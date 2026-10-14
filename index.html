@@ -1,0 +1,3186 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>暁ノ刃｜テストプレイ</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#0d101b;color:#fff;font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',system-ui,sans-serif}
+button{cursor:pointer;font-family:inherit}
+#stage{position:relative;width:100%;height:100dvh;min-height:560px;overflow:hidden;background-image:linear-gradient(to bottom,rgba(7,11,24,.10),rgba(5,9,18,.30)),url("assets/000_8e5bad6cd.png");background-position:center;background-size:cover;background-repeat:no-repeat}
+.scene-bg{position:absolute;inset:0;z-index:0;background-repeat:no-repeat;background-position:center center;background-size:cover;opacity:0;transform:scale(1.025);transition:opacity .65s ease,transform 3.2s ease;will-change:opacity,transform;pointer-events:none}
+.scene-bg.active{opacity:1;transform:scale(1)}
+#sceneTransitionFx{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,.12) 58%, rgba(0,0,0,.28) 100%);opacity:0;transition:opacity .28s ease}
+#sceneTransitionFx.flash{opacity:1}
+
+#stage::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,255,255,.02),rgba(0,0,0,.13) 72%,rgba(0,0,0,.25));pointer-events:none}
+.top{position:absolute;z-index:10;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 26px;background:linear-gradient(rgba(5,9,20,.40),transparent);gap:10px}
+.logo{font-size:22px;letter-spacing:.22em;text-shadow:0 2px 10px #000;font-family:'Yu Mincho','Hiragino Mincho ProN',serif}
+.tags{font:12px system-ui,sans-serif;color:#edf2fb}
+#portrait{position:absolute;z-index:8;bottom:0;width:min(44vw,660px);height:96%;object-fit:contain;filter:drop-shadow(0 20px 34px rgba(0,0,0,.62));transition:none;pointer-events:none;opacity:0}
+#portrait.right{right:-1%;left:auto;object-position:right bottom}
+#portrait.left{left:-1%;right:auto;object-position:left bottom}
+#portrait.show{opacity:1}
+#portrait.hide{opacity:0}
+
+#narrative{position:absolute;z-index:4;left:8%;right:13%;top:16%;bottom:16%;display:none;align-items:center;justify-content:center;padding:3.4vh 4.2vw;font-size:clamp(25px,2.35vw,39px);line-height:1.95;letter-spacing:.03em;text-align:left;text-shadow:0 2px 4px rgba(0,0,0,.92),0 0 18px rgba(0,0,0,.88),0 0 38px rgba(0,0,0,.72);white-space:pre-wrap;background:linear-gradient(180deg,rgba(10,14,23,.11),rgba(10,14,23,.26),rgba(10,14,23,.11));backdrop-filter:blur(1.6px);-webkit-backdrop-filter:blur(1.6px)}
+#narrativeText{width:100%;max-height:100%;overflow:hidden}#narrativeText .line{margin:0 0 .32em;min-height:1.7em}#narrativeText .line:last-child{margin-bottom:0}
+
+#conversation{position:absolute;z-index:7;top:14%;bottom:16%;display:none;align-items:center}
+#conversation.rightSpeaker{left:5%;right:26%;justify-content:flex-start;padding-right:2vw}
+#conversation.leftSpeaker{left:26%;right:5%;justify-content:flex-end;padding-left:2vw}
+.bubble-wrap{width:min(56vw,860px);display:flex;flex-direction:column;gap:10px}
+#conversation.rightSpeaker .bubble-wrap{align-items:flex-start}
+#conversation.leftSpeaker .bubble-wrap{align-items:flex-end}
+.speaker{font:700 15px system-ui,sans-serif;letter-spacing:.16em;color:#ffeab8;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+#conversation.rightSpeaker .speaker{padding-left:10px}
+#conversation.leftSpeaker .speaker{padding-right:10px}
+.bubble{position:relative;width:100%;min-height:96px;padding:22px 28px;border-radius:28px;background:rgba(248,244,234,.74);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#1a1d28;box-shadow:0 14px 40px rgba(0,0,0,.32);font-size:clamp(24px,2.15vw,36px);line-height:1.62;text-align:left;border:1px solid rgba(255,255,255,.34)}
+#conversation.rightSpeaker .bubble::after,#conversation.leftSpeaker .bubble::after{content:"";position:absolute;top:24%;width:0;height:0;border-style:solid}
+#conversation.rightSpeaker .bubble::after{right:-26px;border-width:13px 0 13px 26px;border-color:transparent transparent transparent rgba(248,244,234,.74)}
+#conversation.leftSpeaker .bubble::after{left:-26px;border-width:13px 26px 13px 0;border-color:transparent rgba(248,244,234,.74) transparent transparent}
+
+#chapterCard{position:absolute;inset:0;z-index:9;display:none;align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(rgba(3,6,12,.46),rgba(3,6,12,.52));backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);text-align:center;padding:8vw}
+#chapterCard.show{display:flex}
+#chapterSub{font:600 clamp(14px,1.3vw,20px) 'Yu Gothic UI','Hiragino Sans',sans-serif;letter-spacing:.35em;color:#e8d5a3;text-shadow:0 2px 6px #000;opacity:.95;margin-bottom:18px}
+#chapterTitle{font:700 clamp(42px,5.8vw,98px) 'Yu Mincho','Hiragino Mincho ProN',serif;letter-spacing:.14em;line-height:1.28;color:#fff6df;text-shadow:0 3px 14px rgba(0,0,0,.9),0 0 36px rgba(0,0,0,.72)}
+#chapterLine{width:min(460px,72vw);height:1px;background:linear-gradient(90deg,transparent,rgba(255,237,186,.8),transparent);margin-top:22px;box-shadow:0 0 18px rgba(255,237,186,.35)}
+
+.controls{position:absolute;z-index:11;bottom:0;left:0;right:0;display:flex;align-items:center;gap:14px;padding:14px 22px;background:linear-gradient(transparent,rgba(5,9,22,.66));font:13px system-ui,sans-serif}
+.controls button{border:1px solid rgba(190,199,216,.44);border-radius:10px;background:rgba(7,19,35,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:white;padding:10px 16px}
+.controls button:hover{background:rgba(36,54,83,.92)}
+.grow{flex:1}.hint{color:#dde4f0;font-size:11px}.count{font-variant-numeric:tabular-nums}
+
+@media (max-width:1100px){
+  #portrait{width:min(48vw,580px);height:93%}
+  #narrative{left:6%;right:10%;top:13%;bottom:17%;font-size:clamp(22px,2.7vw,34px)}
+  #conversation.rightSpeaker{left:4%;right:24%;top:14%;bottom:17%}
+  #conversation.leftSpeaker{left:24%;right:4%;top:14%;bottom:17%}
+  .bubble-wrap{width:min(60vw,760px)}
+}
+@media (max-width:700px){
+  .top{padding:10px 12px}.tags{font-size:10px}
+  #portrait{width:67vw;height:74%}
+  #portrait.right{right:-18%}#portrait.left{left:-18%}
+  #narrative{left:4%;right:4%;top:13%;bottom:18%;padding:22px 18px;font-size:clamp(18px,4.8vw,25px);line-height:1.82}
+  #conversation.rightSpeaker{left:4%;right:10%;top:12%;bottom:20%;padding-right:0}
+  #conversation.leftSpeaker{left:10%;right:4%;top:12%;bottom:20%;padding-left:0}
+  .bubble-wrap{width:77vw}
+  .speaker{font-size:12px}
+  .bubble{min-height:82px;padding:16px 18px;font-size:clamp(20px,4.9vw,26px);line-height:1.56}
+  #conversation.rightSpeaker .bubble::after{right:-17px;border-width:10px 0 10px 17px}
+  #conversation.leftSpeaker .bubble::after{left:-17px;border-width:10px 17px 10px 0}
+  #chapterSub{font-size:12px;margin-bottom:12px}
+  #chapterTitle{font-size:clamp(34px,9vw,56px);line-height:1.35}
+  #chapterLine{margin-top:14px}
+  .hint{display:none}.controls{gap:7px;padding:10px}.controls button{padding:10px}
+}
+
+/* v9: readable narrative and actor-safe dialogue columns */
+#narrative {
+  left: 8%; right: 8%; top: 13%; bottom: 13%;
+  padding: 3.5vh 3.5vw;
+  font-size: clamp(31px, 2.85vw, 45px);
+  line-height: 1.85;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+}
+#narrativeText {width: 100%; max-height: 100%; overflow: hidden;}
+#portrait.left {left: -1%; right: auto;}
+#portrait.right {right: -1%; left: auto;}
+#conversation {
+  position: absolute;
+  top: 24%; bottom: auto;
+  height: auto; min-height: 0;
+  align-items: flex-start;
+  z-index: 7;
+}
+#conversation.rightSpeaker {
+  left: 5%; right: 37%;
+  padding: 0;
+  justify-content: flex-end;
+}
+#conversation.leftSpeaker {
+  left: 37%; right: 5%;
+  padding: 0;
+  justify-content: flex-start;
+}
+.bubble-wrap {
+  width: auto; max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  align-items: stretch;
+}
+.bubble {
+  box-sizing: border-box;
+  width: var(--dialog-width, 330px);
+  max-width: 100%;
+  min-height: 0;
+  padding: 20px 24px;
+  font-size: clamp(29px, 2.65vw, 42px);
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+#conversation.rightSpeaker .bubble::after,
+#conversation.leftSpeaker .bubble::after {
+  top: 32px;
+  bottom: auto;
+}
+#conversation.rightSpeaker .bubble::after {
+  right: -33px;
+  border-width: 15px 0 15px 33px;
+}
+#conversation.leftSpeaker .bubble::after {
+  left: -33px;
+  border-width: 15px 33px 15px 0;
+}
+@media (max-width:1100px) {
+ #narrative {left: 6%;right: 6%;top: 13%;bottom: 14%;font-size:clamp(27px,3.15vw,39px);}
+ #conversation.rightSpeaker {left: 4%; right: 39%;}
+ #conversation.leftSpeaker {left: 39%; right: 4%;}
+ .bubble-wrap {width:auto;max-width:100%;}
+}
+@media (max-width:700px) {
+ #narrative {left:4%;right:4%;top:13%;bottom:18%;padding:18px 14px;font-size:clamp(22px,5vw,29px);line-height:1.72;}
+ #conversation {top:20%;bottom:auto;}
+ #conversation.rightSpeaker {left:3%;right:32%;padding:0;}
+ #conversation.leftSpeaker {left:32%;right:3%;padding:0;}
+ .bubble-wrap {width:auto;max-width:100%;}
+ .bubble {min-height:0;padding:13px 14px;font-size:clamp(21px,4.8vw,27px);line-height:1.52;}
+ #conversation.rightSpeaker .bubble::after {right:-19px;top:25px;border-width:11px 0 11px 19px;}
+ #conversation.leftSpeaker .bubble::after {left:-19px;top:25px;border-width:11px 19px 11px 0;}
+}
+
+/* v10 mouth-anchor adjustments */
+#conversation{
+  top: calc(var(--mouth-y, 32%) - var(--tail-center, 48px));
+  bottom: auto;
+  height: auto;
+  min-height: 0;
+}
+#conversation.rightSpeaker{
+  left: 5%;
+  right: 30%;
+  justify-content: flex-end;
+}
+#conversation.leftSpeaker{
+  left: 30%;
+  right: 5%;
+  justify-content: flex-start;
+}
+#conversation.rightSpeaker .bubble::after,
+#conversation.leftSpeaker .bubble::after{
+  top: var(--tail-top, 32px);
+}
+@media (max-width:1100px){
+  #conversation.rightSpeaker{left:4%; right:31%;}
+  #conversation.leftSpeaker{left:31%; right:4%;}
+}
+@media (max-width:700px){
+  #conversation{top: calc(var(--mouth-y-mobile, var(--mouth-y, 31%)) - 30px);}
+  #conversation.rightSpeaker{left:3%; right:27%;}
+  #conversation.leftSpeaker{left:27%; right:3%;}
+  #conversation.rightSpeaker .bubble::after,
+  #conversation.leftSpeaker .bubble::after{top: var(--tail-top-mobile, 24px);}
+}
+
+
+/* v11: move dialogue/tail lower overall */
+#conversation{
+  top: calc(var(--mouth-y, 32%) - var(--tail-center, 48px) + var(--dialog-lower, 92px));
+}
+#conversation.rightSpeaker .bubble::after,
+#conversation.leftSpeaker .bubble::after{
+  top: calc(var(--tail-top, 32px) + var(--tail-lower, 6px));
+}
+@media (max-width:700px){
+  #conversation{top: calc(var(--mouth-y-mobile, var(--mouth-y, 31%)) - 30px + var(--dialog-lower-mobile, 42px));}
+  #conversation.rightSpeaker .bubble::after,
+  #conversation.leftSpeaker .bubble::after{top: calc(var(--tail-top-mobile, 24px) + var(--tail-lower-mobile, 4px));}
+}
+
+
+/* v12: tail at lower corners */
+#conversation.rightSpeaker .bubble::after,
+#conversation.leftSpeaker .bubble::after{
+  top:auto !important;
+}
+#conversation.rightSpeaker .bubble::after{
+  right:34px !important;
+  bottom:-24px !important;
+  border-width:24px 18px 0 0 !important;
+  border-color:rgba(248,244,234,.74) transparent transparent transparent !important;
+}
+#conversation.leftSpeaker .bubble::after{
+  left:34px !important;
+  bottom:-24px !important;
+  border-width:24px 0 0 18px !important;
+  border-color:rgba(248,244,234,.74) transparent transparent transparent !important;
+}
+@media (max-width:700px){
+  #conversation.rightSpeaker .bubble::after{
+    right:24px !important;
+    bottom:-18px !important;
+    border-width:18px 14px 0 0 !important;
+  }
+  #conversation.leftSpeaker .bubble::after{
+    left:24px !important;
+    bottom:-18px !important;
+    border-width:18px 0 0 14px !important;
+  }
+}
+
+
+/* v13: diagonal-down tails from lower corners */
+#conversation.rightSpeaker .bubble::after,
+#conversation.leftSpeaker .bubble::after{
+  top:auto !important;
+  border:none !important;
+  width:34px !important;
+  height:26px !important;
+  background:rgba(248,244,234,.74) !important;
+  bottom:-22px !important;
+}
+#conversation.rightSpeaker .bubble::after{
+  right:24px !important;
+  left:auto !important;
+  clip-path:polygon(0 0,100% 0,100% 100%) !important;
+}
+#conversation.leftSpeaker .bubble::after{
+  left:24px !important;
+  right:auto !important;
+  clip-path:polygon(0 0,100% 0,0 100%) !important;
+}
+@media (max-width:700px){
+  #conversation.rightSpeaker .bubble::after,
+  #conversation.leftSpeaker .bubble::after{
+    width:26px !important;
+    height:20px !important;
+    bottom:-17px !important;
+  }
+  #conversation.rightSpeaker .bubble::after{
+    right:18px !important;
+  }
+  #conversation.leftSpeaker .bubble::after{
+    left:18px !important;
+  }
+}
+
+
+/* v14: dialogue is a stable, completely visible block with intentional line breaks. */
+.bubble {white-space:pre-line;word-break:normal;overflow-wrap:anywhere;line-break:strict;text-wrap:pretty;}
+
+/* v15 responsive phone portrait/landscape; PC unchanged */
+@media (pointer:coarse) {
+  .controls button {min-height:42px;touch-action:manipulation}
+  #stage {min-height:0;height:100vh;height:100dvh}
+  .controls{padding-bottom:max(8px,env(safe-area-inset-bottom));}
+}
+@media (max-width:850px) and (orientation:portrait) {
+  #stage {height:100dvh; min-height:0;}
+  .top {padding: max(8px,env(safe-area-inset-top)) 12px 7px;}
+  .logo {font-size:18px}
+  .tags{display:none}
+  #portrait {width: min(95vw,650px) !important;height:47dvh !important;bottom:35dvh !important;object-fit:contain;object-position:center bottom !important;left:auto;right:0;filter:drop-shadow(0 6px 14px #0008)}
+  #portrait.left {left:-8vw !important;right:auto !important;}
+  #portrait.right {right:-8vw !important;left:auto !important;}
+  #conversation, #conversation.leftSpeaker,#conversation.rightSpeaker {
+    position:absolute;top:auto !important;bottom:calc(57px + env(safe-area-inset-bottom)) !important;
+    left:5vw !important;right:5vw !important;width:90vw !important;height:auto !important;
+    max-height:35dvh !important;min-height:0;display:none;overflow:visible;
+    justify-content:center !important;padding:0 !important;
+  }
+  .bubble-wrap {max-width:100% !important;width:100% !important;align-items:stretch !important;gap:4px;}
+  .bubble {width:100% !important;max-width:100% !important;max-height:29dvh !important;min-height:0;
+    overflow-y:auto;overscroll-behavior:contain;padding:13px 17px !important;
+    font-size:clamp(18px,4.8vw,26px) !important;line-height:1.55 !important;
+    border-radius:17px;}
+  .speaker {font-size:12px !important;padding:0 10px !important;}
+  #conversation.leftSpeaker .bubble::after,#conversation.rightSpeaker .bubble::after {top:-17px !important;bottom:auto !important;width:25px !important;height:19px !important;}
+  #conversation.leftSpeaker .bubble::after {left:16% !important;right:auto !important;clip-path:polygon(0 100%,100% 100%,0 0) !important;}
+  #conversation.rightSpeaker .bubble::after {right:16% !important;left:auto !important;clip-path:polygon(0 100%,100% 100%,100% 0) !important;}
+  #narrative {left:3vw !important;right:3vw !important;top:9dvh !important;bottom:calc(59px + env(safe-area-inset-bottom)) !important;
+    padding:12px 14px !important;font-size:clamp(21px,5.3vw,29px) !important;line-height:1.75 !important;overflow:hidden;}
+  #narrativeText{width:100%;}
+  .line{margin-bottom:0.45em !important;}
+  .controls{gap:7px;padding:7px 8px max(8px,env(safe-area-inset-bottom));}
+  .controls button{padding:9px 11px;font-size:12px}
+  .hint{display:none}
+  #chapterCard {padding:7vw}
+  #chapterTitle {font-size:clamp(32px,9vw,58px)}
+}
+@media (max-height:540px) and (orientation:landscape) and (max-width:1050px) {
+  #stage{height:100dvh;min-height:0;}
+  .top{padding:5px 15px;}
+  .logo{font-size:16px}
+  .tags{display:none}
+  #portrait {width:39vw !important;height:92dvh !important;bottom:0 !important;}
+  #portrait.right{right:-2vw !important;left:auto !important;}
+  #portrait.left{left:-2vw !important;right:auto !important;}
+  #conversation {top:14dvh !important;bottom:auto !important;max-height:66dvh;min-height:0;overflow:visible;}
+  #conversation.rightSpeaker {left:4vw !important;right:39vw !important;padding:0 !important;}
+  #conversation.leftSpeaker {left:39vw !important;right:4vw !important;padding:0 !important;}
+  .bubble-wrap {width:100% !important;max-width:100% !important;}
+  .bubble {width:100% !important;max-width:100% !important;max-height:57dvh !important;overflow:auto;
+     min-height:0;font-size:clamp(17px,2.7vw,25px) !important;line-height:1.45;padding:11px 16px !important;border-radius:15px;}
+  .speaker {font-size:11px !important;}
+  #narrative {top:10dvh !important;bottom:13dvh !important;left:5vw !important;right:5vw !important;
+    padding:8px 18px !important;font-size:clamp(18px,2.9vw,26px) !important;line-height:1.56 !important;overflow:hidden;}
+  .line{margin-bottom:.3em !important;}
+  .controls {padding:5px 9px max(4px,env(safe-area-inset-bottom));gap:8px;}
+  .controls button {padding:6px 11px;min-height:32px;font-size:11px}
+  .hint{display:none}
+  #chapterTitle {font-size:clamp(32px,6vw,64px)}
+}
+
+.title-screen{position:fixed;inset:0;z-index:100;display:flex;justify-content:center;align-items:center;background:linear-gradient(#02091622,#02091655),url("assets/001_426a7fab8.png") center/cover no-repeat;min-height:100dvh;overflow:auto;overscroll-behavior:contain}
+.title-shade{position:absolute;inset:0;background:linear-gradient(90deg,#04102255,#04102215,#04102255)}
+.title-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:100dvh;padding:3vh 1rem 4vh}
+.title-logo{object-fit:contain;width:min(74vw,740px);max-height:45dvh;filter:drop-shadow(0 5px 17px #000a)}
+.title-menu{display:grid;gap:9px;width:min(72vw,370px);margin-top:2vh}
+.title-menu button{font-family:'Yu Mincho',serif;color:#fff9e8;border:1px solid #e7c98991;background:linear-gradient(90deg,#080f1bcc,#2b1a19b8,#080f1bcc);border-radius:5px;font-size:clamp(16px,1.8vw,24px);letter-spacing:.16em;padding:8px 12px;text-shadow:0 2px 5px #000;min-height:42px}
+.title-menu button:hover,.title-menu button:focus-visible{background:#7c3f23d9;border-color:#fff2bf}
+.title-note{font-size:12px;color:#ddd0b1;margin-top:10px;text-shadow:0 1px 6px #000}
+.menu-dialog{position:fixed;inset:0;z-index:110;background:#030918cd;display:flex;align-items:center;justify-content:center;padding:20px}
+.menu-dialog[hidden]{display:none}.dialog-box{width:min(92vw,500px);max-height:85dvh;overflow:auto;background:#142039f0;color:#f6f3eb;padding:28px;border:1px solid #bca77e;border-radius:12px;text-align:center}.dialog-box h2{margin-top:0;font-family:'Yu Mincho',serif}.dialog-box button{background:#27344c;border:1px solid #c2b8a5;border-radius:7px;padding:9px 22px;color:white;font-size:16px}.dialog-box input[type="range"]{width:85%}.gallery-img{max-width:100%;max-height:50dvh;object-fit:contain;border-radius:6px}
+@media (orientation:portrait) and (max-width:700px){.title-logo{width:min(94vw,480px);max-height:34dvh}.title-menu{width:min(83vw,350px);gap:12px;margin-top:3vh}.title-menu button{min-height:49px;font-size:20px}}
+@media (orientation:landscape) and (max-height:520px){.title-content{padding:4px 12px}.title-logo{max-height:42dvh;width:min(58vw,570px)}.title-menu{gap:4px;width:min(38vw,320px);margin-top:1vh}.title-menu button{font-size:15px;padding:3px;min-height:28px}.title-note{font-size:10px;margin-top:4px}}
+</style><style id="autoplay-fallback-css">#enableTitleMusic{position:absolute;z-index:105;bottom:5.4%;left:50%;transform:translateX(-50%);border:1px solid #ead5a0;background:#121723e8;color:#fff7d9;border-radius:10px;padding:12px 22px;font:600 17px system-ui,sans-serif;box-shadow:0 4px 25px #0009}#enableTitleMusic[hidden]{display:none}</style>
+<style id="character-codex-css">
+#decisionFlash{position:fixed;inset:0;z-index:190;pointer-events:none;opacity:0;background:radial-gradient(circle at center,rgba(255,244,203,.24),rgba(255,214,139,.10) 26%,rgba(255,255,255,0) 60%),linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0));transition:opacity .18s ease}
+#decisionFlash.show{opacity:1;animation:decisionBlink .22s ease 1}
+@keyframes decisionBlink{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
+button.decision-hit{transform:scale(.97);filter:brightness(1.16);box-shadow:0 0 0 1px rgba(255,244,196,.65),0 0 18px rgba(255,216,142,.42)!important;transition:transform .12s ease,filter .12s ease,box-shadow .12s ease}
+
+.character-codex{position:fixed;inset:0;z-index:170;overflow:hidden;background:linear-gradient(125deg,rgba(6,9,16,.90) 0%,rgba(10,14,23,.84) 37%,rgba(15,20,31,.62) 62%,rgba(18,22,35,.36) 100%);color:#f8f4ea}
+.character-codex[hidden]{display:none}
+.character-codex.show{display:block}
+.character-codex::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 75% 42%,rgba(255,201,119,.16),transparent 30%),radial-gradient(circle at 10% 0%,rgba(107,158,255,.10),transparent 26%);pointer-events:none}
+.codex-figure{position:absolute;right:-3vw;bottom:-2vh;width:min(58vw,920px);height:100%;object-fit:contain;object-position:right bottom;opacity:.30;filter:drop-shadow(0 30px 50px rgba(0,0,0,.55));transition:opacity .28s ease, transform .28s ease}
+.character-codex.switching .codex-figure{opacity:.12;transform:translateY(10px) scale(.985)}
+.codex-ui{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:3.5vh 3.7vw 3vh}
+.codex-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:2vh}
+.codex-headcopy small{display:block;font-size:13px;letter-spacing:.38em;color:#e6c583;margin-bottom:10px}
+.codex-headcopy h2{margin:0;font:700 clamp(34px,4vw,58px) 'Yu Mincho','Hiragino Mincho ProN',serif;letter-spacing:.12em;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+#codexClose{border:1px solid rgba(230,197,131,.75);background:rgba(12,18,30,.62);color:#fff5db;border-radius:999px;padding:11px 18px;font:600 16px system-ui,sans-serif;backdrop-filter:blur(6px)}
+.codex-layout{display:grid;grid-template-columns:minmax(150px,230px) minmax(0,1fr);gap:2.4vw;align-items:start;min-height:0;flex:1}
+.codex-nav{display:grid;gap:10px;align-content:start;max-height:76vh;overflow:auto;padding-right:4px}
+.codex-nav button{position:relative;text-align:left;border:1px solid rgba(255,245,218,.16);background:linear-gradient(90deg,rgba(9,14,23,.78),rgba(31,26,33,.66));color:#f6edd7;border-radius:14px;padding:12px 14px 12px 16px;font:600 15px system-ui,sans-serif;letter-spacing:.06em;min-height:56px}
+.codex-nav button .sub{display:block;font-size:11px;color:#d0c3a1;margin-top:4px;font-weight:500;letter-spacing:.08em}
+.codex-nav button.active{background:linear-gradient(90deg,rgba(90,44,28,.92),rgba(41,24,22,.84));border-color:rgba(245,210,138,.66);box-shadow:0 0 0 1px rgba(255,227,168,.18),0 10px 28px rgba(0,0,0,.18)}
+.codex-main{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-content:start;max-width:min(62vw,1080px)}
+.codex-role{font-size:14px;letter-spacing:.24em;color:#e7c481;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.codex-name{margin:0;font:700 clamp(34px,4.4vw,74px) 'Yu Mincho','Hiragino Mincho ProN',serif;letter-spacing:.08em;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.55)}
+.codex-ruby{font-size:16px;letter-spacing:.18em;color:#d8d6dd}
+.codex-catch{font-size:clamp(18px,1.95vw,28px);line-height:1.65;color:#fff7e8;max-width:15em;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.codex-points{display:flex;flex-wrap:wrap;gap:10px 12px;margin-top:2px}
+.codex-pill{padding:8px 12px;border:1px solid rgba(255,236,193,.20);border-radius:999px;background:rgba(18,23,35,.43);font-size:14px;color:#f0ebdf;backdrop-filter:blur(4px)}
+.codex-desc{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;width:min(56vw,980px)}
+.codex-desc p{margin:0;padding:16px 18px;border-radius:18px;background:linear-gradient(180deg,rgba(10,14,24,.54),rgba(18,24,39,.32));border:1px solid rgba(255,240,200,.10);backdrop-filter:blur(3px);font-size:clamp(17px,1.45vw,24px);line-height:1.95;letter-spacing:.03em;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.codex-help{font-size:12px;color:#cabd9f;margin-top:auto;letter-spacing:.08em}
+
+@media (orientation:portrait), (max-width:900px){
+  .codex-figure{right:50%;transform:translateX(50%);width:min(92vw,660px);height:53%;bottom:0;object-position:center bottom;opacity:.22}
+  .character-codex.switching .codex-figure{transform:translateX(50%) translateY(8px) scale(.985)}
+  .codex-ui{padding:2.2vh 4vw 2vh}
+  .codex-header{margin-bottom:1.2vh}
+  .codex-headcopy small{font-size:11px;margin-bottom:6px}
+  .codex-headcopy h2{font-size:clamp(26px,8vw,42px)}
+  #codexClose{padding:10px 14px;font-size:14px}
+  .codex-layout{grid-template-columns:1fr;gap:12px}
+  .codex-nav{display:flex;gap:8px;overflow:auto;padding:4px 2px 2px;max-height:none}
+  .codex-nav button{min-width:132px;min-height:52px;padding:10px 12px}
+  .codex-main{max-width:none;padding-top:2px}
+  .codex-role{font-size:12px}
+  .codex-name{font-size:clamp(28px,9vw,52px)}
+  .codex-ruby{font-size:13px}
+  .codex-catch{font-size:clamp(16px,4.5vw,22px);max-width:none}
+  .codex-points{gap:8px}
+  .codex-pill{font-size:12px;padding:7px 11px}
+  .codex-desc{width:100%;gap:10px;padding-bottom:44vh}
+  .codex-desc p{font-size:clamp(15px,4.3vw,19px);line-height:1.78;padding:14px 15px}
+  .codex-help{padding-bottom:2px}
+}
+</style>
+
+
+<style id="codex-overview-css">
+.character-codex.overview-mode .codex-layout{grid-template-columns:1fr!important}
+.character-codex.overview-mode .codex-nav,.character-codex.overview-mode .codex-main{display:none!important}
+.character-codex.overview-mode .codex-figure{opacity:.08!important;transform:translateX(0)!important}
+.character-codex.detail-mode #codexOverview{display:none}
+#codexOverview{display:none;min-height:0}
+.character-codex.overview-mode #codexOverview{display:block}
+.codex-overview-head{margin-bottom:16px}
+.codex-overview-head h3{margin:0 0 8px;font:700 clamp(24px,2.6vw,38px) 'Yu Mincho','Hiragino Mincho ProN',serif;letter-spacing:.08em;color:#fff5de}
+.codex-overview-head p{margin:0;color:#d7ccb2;font-size:14px;letter-spacing:.05em}
+.codex-overview-scroll{display:flex;gap:18px;overflow:auto;padding:10px 4px 16px;scroll-snap-type:x proximity}
+.codex-overview-scroll::-webkit-scrollbar{height:10px}.codex-overview-scroll::-webkit-scrollbar-thumb{background:rgba(240,215,161,.35);border-radius:999px}
+.codex-card{flex:0 0 min(240px,68vw);display:flex;flex-direction:column;border:1px solid rgba(247,223,168,.16);border-radius:18px;background:linear-gradient(180deg,rgba(14,18,29,.78),rgba(28,23,31,.72));box-shadow:0 14px 28px rgba(0,0,0,.20);overflow:hidden;scroll-snap-align:start;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,filter .18s ease}
+.codex-card:hover,.codex-card:focus-visible{transform:translateY(-3px);border-color:rgba(247,223,168,.42);box-shadow:0 18px 34px rgba(0,0,0,.30);filter:brightness(1.06)}
+.codex-card-illust{height:340px;background:linear-gradient(180deg,rgba(242,237,229,.05),rgba(255,255,255,.01));display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.codex-card-illust img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 14px 24px rgba(0,0,0,.42))}
+.codex-card-meta{padding:14px 16px 16px}
+.codex-card-meta strong{display:block;font-size:22px;letter-spacing:.08em;color:#fff7e9;font-family:'Yu Mincho','Hiragino Mincho ProN',serif;margin-bottom:6px}
+.codex-card-meta span{display:block;color:#e3d7bb;font-size:12px;letter-spacing:.16em;margin-bottom:8px}
+.codex-card-meta p{margin:0;color:#d6cdb9;font-size:13px;line-height:1.6}
+#codexBackList{display:none;margin-bottom:4px;align-self:flex-start;border:1px solid rgba(230,197,131,.60);background:rgba(12,18,30,.62);color:#fff5db;border-radius:999px;padding:10px 14px;font:600 14px system-ui,sans-serif}
+.character-codex.detail-mode #codexBackList{display:inline-flex}
+@media (orientation:portrait), (max-width:900px){
+  .codex-card{flex-basis:min(62vw,220px)}
+  .codex-card-illust{height:250px}
+  .codex-card-meta strong{font-size:19px}
+  .codex-card-meta p{font-size:12px}
+}
+</style>
+
+
+<style id="codex-mobile-scroll-fix">
+#codexOverview {min-width:0;width:100%;overflow:hidden}
+.codex-overview-scroll {
+  width:100%;max-width:100%;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x!important;
+  overscroll-behavior-x:contain;
+  scroll-behavior:smooth;
+  flex-wrap:nowrap!important;
+  scrollbar-width:thin;
+}
+.codex-overview-scroll .codex-card {touch-action:pan-x;user-select:none;-webkit-user-select:none;flex-shrink:0!important}
+.codex-overview-scroll img {pointer-events:none;-webkit-user-drag:none}
+.codex-scroll-controls {display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px}
+.codex-scroll-controls button {border:1px solid #d8b77d;background:#142033db;color:#fff3d8;border-radius:10px;padding:9px 16px;font-size:17px}
+.codex-scroll-controls span {color:#d7c6a4;font-size:12px}
+@media(max-width:900px) {.codex-card{flex-basis:min(62vw,220px)}.codex-overview-scroll{min-height:310px}}
+</style>
+<style id="roulette-v22-css">
+.character-codex.overview-mode #codexOverview{width:100%;height:calc(100% - 16px);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.character-codex.overview-mode .codex-layout{height:100%;min-height:0;overflow:hidden}
+.roulette-title{text-align:center;color:#ffe7b4;font:600 clamp(16px,2.6vw,25px) 'Yu Mincho',serif;letter-spacing:.15em;margin:2px 0 12px}
+.roulette-stage{position:relative;flex:1;min-height:240px;width:100%;overflow:hidden;perspective:1200px;touch-action:pan-y;user-select:none}
+.roulette-stage:before{content:'';position:absolute;left:50%;top:49%;width:min(65vw,800px);height:min(65vw,800px);border:1px solid #d9ad5840;border-radius:50%;transform:translate(-50%,-50%) rotateX(65deg);pointer-events:none}
+.roulette-card{position:absolute;left:50%;top:46%;width:clamp(145px,22vw,300px);height:min(49vh,365px);max-height:82%;border:2px solid #ad936777;border-radius:18px;background:linear-gradient(155deg,#212a3c,#0c111b);padding:7px;display:flex;flex-direction:column;align-items:center;overflow:hidden;cursor:pointer;transform-origin:center center;transition:transform .52s cubic-bezier(.2,.8,.2,1),opacity .48s,filter .48s,border-color .48s,box-shadow .48s;backface-visibility:hidden}
+.roulette-card img{width:100%;flex:1;min-height:0;object-fit:contain;object-position:center bottom;pointer-events:none}
+.roulette-card.chosen img{transform:scale(1.14);transform-origin:center 64%;transition:transform .4s ease}
+.roulette-card img{transition:transform .4s ease}
+.roulette-card .roulette-name{font:700 clamp(15px,2vw,23px) 'Yu Mincho',serif;color:#fff0c8;padding:8px 0;text-align:center;text-shadow:0 2px 9px #000}
+.roulette-card.chosen{border-color:#ffedb2;box-shadow:0 0 8px #ffe8a8,0 0 26px #ecad5bba, inset 0 0 15px #ffd68d66;animation:roulette-glow 2.2s ease-in-out infinite alternate}
+@keyframes roulette-glow{from{box-shadow:0 0 9px #f6d18a,0 0 20px #d5a04d8f,inset 0 0 9px #ffe2aa44}to{box-shadow:0 0 17px #fff1bf,0 0 43px #eab05b,inset 0 0 20px #ffe6a677}}
+.roulette-card:focus-visible{outline:3px solid #fff2b1;outline-offset:3px}
+.roulette-actions{display:flex;gap:14px;justify-content:center;align-items:center;padding:9px 0 6px;z-index:3}
+.roulette-actions button{background:#1a2236e8;color:#fff2d5;border:1px solid #d3ae69b9;border-radius:12px;min-width:70px;min-height:45px;padding:9px 18px;font-size:18px}
+.roulette-actions .roulette-confirm{background:linear-gradient(90deg,#794425,#af7836,#794425);font-weight:700;min-width:170px}
+.roulette-position{text-align:center;color:#d7c5a5;font-size:13px;letter-spacing:.15em}
+@media(max-width:700px){.character-codex.overview-mode .codex-ui{padding:10px 10px 8px}.character-codex.overview-mode .codex-header{margin-bottom:0}.character-codex.overview-mode .codex-headcopy h2{font-size:25px}.roulette-title{font-size:14px;margin:2px 0 3px}.roulette-card{width:clamp(130px,40vw,225px);height:min(40dvh,270px)}.roulette-actions{gap:7px}.roulette-actions button{min-width:54px;padding:8px 9px}.roulette-actions .roulette-confirm{min-width:120px}}
+@media(orientation:landscape) and (max-height:530px){.roulette-title{display:none}.roulette-card{height:51dvh;width:min(26vw,200px)}.roulette-actions{padding:2px}.roulette-actions button{min-height:30px;padding:4px 10px;font-size:14px}.roulette-position{font-size:10px}}
+</style>
+<style id="v24-chapter-typography">
+.game-corner-logo{width:clamp(105px,12vw,190px);height:clamp(39px,5.2vw,65px);object-fit:contain;object-position:left center;filter:drop-shadow(0 1px 7px #000b)}
+.top{min-height:62px}
+#narrative{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Noto Sans JP",Meiryo,sans-serif;font-weight:550;font-size:clamp(32px,3vw,46px);line-height:1.75;letter-spacing:.025em}
+#narrative .line{line-height:1.75}
+.bubble{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Noto Sans JP",Meiryo,sans-serif;font-weight:600;font-size:clamp(31px,2.85vw,44px);letter-spacing:.012em}
+#chapterCurtain{position:absolute;inset:0;z-index:9;background:#030407;opacity:0;pointer-events:none;transition:opacity .55s ease}
+#chapterCurtain.active{opacity:1}
+#chapterCard{z-index:10}
+#chapterCard.show{animation:chapterReveal .85s ease both}
+#chapterTitle{font-family:"Yu Mincho","Hiragino Mincho ProN",serif;letter-spacing:.16em;text-shadow:0 4px 12px #000,0 0 28px #e7a85c80}
+@keyframes chapterReveal{from{opacity:0;transform:scale(1.045)}to{opacity:1;transform:scale(1)}}
+@media (orientation:portrait) and (max-width:700px){
+ .game-corner-logo{width:120px;height:42px}
+ #narrative{font-size:clamp(23px,5.9vw,31px);line-height:1.65}
+ #narrative .line{line-height:1.65}
+ .bubble{font-size:clamp(23px,5.4vw,31px)}
+}
+@media (orientation:landscape) and (max-height:520px){
+ .game-corner-logo{width:105px;height:34px}
+ .top{min-height:38px}
+ #narrative{font-size:clamp(19px,3.3vh,26px);line-height:1.55}
+ #narrative .line{line-height:1.55}
+ .bubble{font-size:clamp(19px,3.7vh,28px)}
+}
+</style>
+<style id="v25-ux">
+.font-control{display:flex;align-items:center;gap:5px;padding:3px 5px;border:1px solid #f5db9b65;border-radius:11px;background:#0a1523b5;white-space:nowrap}
+.font-control button{padding:8px 10px!important;min-width:43px;font-weight:800;font-size:15px}
+.font-control span{font:600 12px system-ui,sans-serif;min-width:38px;text-align:center;color:#ffe4aa}
+#narrative{font-size:calc(clamp(32px,3vw,46px) * var(--reader-font-scale,1))!important}
+.bubble{font-size:calc(clamp(31px,2.85vw,44px) * var(--reader-font-scale,1))!important}
+
+#narrative.cameo-right{right:32%;padding-right:2vw}
+#narrative.cameo-left{left:32%;padding-left:2vw}
+@media(orientation:portrait) and (max-width:700px){
+ #narrative{font-size:calc(clamp(23px,5.9vw,31px) * var(--reader-font-scale,1))!important}
+ .bubble{font-size:calc(clamp(23px,5.4vw,31px) * var(--reader-font-scale,1))!important}
+ #narrative.cameo-left,#narrative.cameo-right{left:4%;right:4%;top:14%;bottom:39%;padding:12px 14px}
+ #portrait.cameo{height:39%!important;bottom:0!important;width:53vw!important}
+ .font-control button{min-width:37px;padding:7px 6px!important}
+ .font-control span{font-size:10px;min-width:29px}
+}
+@media(orientation:landscape) and (max-height:520px){
+ #narrative{font-size:calc(clamp(19px,3.3vh,26px) * var(--reader-font-scale,1))!important}
+ .bubble{font-size:calc(clamp(19px,3.7vh,28px) * var(--reader-font-scale,1))!important}
+ .font-control{gap:2px}
+ .font-control button{min-width:32px;padding:4px 5px!important}
+}
+</style>
+<style id="v27-top-font-hud">
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;min-height:84px;padding-top:12px}
+.top-brand{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.top-labels{display:flex;flex-direction:column;gap:5px;padding-top:2px}
+.chapter-badge{display:inline-flex;align-items:center;justify-content:center;min-width:84px;padding:5px 12px;border-radius:999px;border:1px solid rgba(245,223,175,.52);background:linear-gradient(180deg,rgba(58,36,20,.72),rgba(18,18,22,.72));color:#fff3d2;font:700 clamp(12px,1.2vw,16px) 'Yu Mincho','Hiragino Mincho ProN',serif;letter-spacing:.16em;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+#narrative{font-family:'Yu Mincho','Hiragino Mincho ProN','Yu Gothic UI',serif!important;font-weight:700;font-size:clamp(33px,3.1vw,48px);line-height:1.88;letter-spacing:.045em;text-shadow:0 1px 5px rgba(0,0,0,.22)}
+#narrative .line{line-height:1.88}
+.bubble{font-family:'Yu Mincho','Hiragino Mincho ProN','Yu Gothic UI',serif!important;font-weight:700;font-size:clamp(31px,2.95vw,45px);line-height:1.72;letter-spacing:.035em}
+#speaker{font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-weight:700;letter-spacing:.12em}
+.party-hud{display:flex;align-items:flex-start;gap:10px;margin-left:auto;padding-top:2px;max-width:min(58vw,780px)}
+.party-hud[hidden]{display:none!important}
+.hud-block{display:flex;flex-direction:column;gap:8px;padding:8px 10px 10px;border:1px solid rgba(231,210,164,.28);border-radius:14px;background:linear-gradient(180deg,rgba(8,14,25,.78),rgba(16,22,37,.58));box-shadow:0 6px 20px rgba(0,0,0,.20);backdrop-filter:blur(6px)}
+.hud-title{font:700 12px 'Yu Gothic UI','Hiragino Sans',sans-serif;letter-spacing:.18em;color:#e8d2a1}
+.equipment-list,.ally-list{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.equip-chip{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 12px;border-radius:999px;border:1px solid rgba(234,219,179,.18);background:rgba(255,255,255,.05);font:700 14px 'Yu Mincho','Hiragino Mincho ProN',serif;color:#f9f1de;letter-spacing:.08em;white-space:nowrap}
+.ally-chip{display:flex;align-items:center;gap:7px;padding:4px 8px 4px 5px;border-radius:999px;border:1px solid rgba(234,219,179,.12);background:rgba(255,255,255,.04)}
+.ally-chip img{width:34px;height:34px;border-radius:999px;object-fit:cover;object-position:center top;background:rgba(0,0,0,.3);border:1px solid rgba(255,241,213,.22)}
+.ally-chip span{font:700 12px 'Yu Mincho','Hiragino Mincho ProN',serif;color:#fff3d8;letter-spacing:.12em;white-space:nowrap}
+@media (max-width:1100px){
+  .top{gap:10px;min-height:76px}
+  .party-hud{max-width:56vw;gap:7px}
+  .ally-chip img{width:30px;height:30px}
+  .equip-chip{min-height:31px;padding:6px 10px;font-size:13px}
+}
+@media (max-width:840px){
+  .top{flex-direction:column;align-items:flex-start;gap:8px;min-height:unset}
+  .party-hud{max-width:none;width:100%;overflow:auto;padding-bottom:2px}
+}
+@media (orientation:portrait) and (max-width:700px){
+  .top{padding:10px 12px 0;gap:7px}
+  .top-brand{width:100%;justify-content:space-between;align-items:flex-start;gap:8px}
+  .top-labels{padding-top:0;align-items:flex-end}
+  .chapter-badge{min-width:auto;padding:4px 10px;font-size:12px}
+  .party-hud{display:flex;gap:7px;overflow:auto;width:100%;padding-bottom:2px}
+  .hud-block{padding:7px 8px 8px;border-radius:12px;min-width:max-content}
+  .hud-title{font-size:10px}
+  .equip-chip{min-height:28px;font-size:11px;padding:5px 9px}
+  .ally-chip{padding:4px 7px 4px 4px}
+  .ally-chip img{width:26px;height:26px}
+  .ally-chip span{font-size:10px}
+  #narrative{font-size:clamp(24px,6.1vw,31px);line-height:1.78}
+  #narrative .line{line-height:1.78}
+  .bubble{font-size:clamp(24px,5.8vw,31px);line-height:1.62}
+}
+@media (orientation:landscape) and (max-height:520px){
+  .top{padding-top:6px;gap:7px;min-height:56px}
+  .party-hud{gap:6px}
+  .hud-block{padding:6px 8px}
+  .hud-title{font-size:10px}
+  .equip-chip{min-height:26px;padding:4px 8px;font-size:11px}
+  .ally-chip img{width:24px;height:24px}
+  .ally-chip span{font-size:10px}
+  #narrative{font-size:clamp(20px,3.5vh,27px);line-height:1.68}
+  #narrative .line{line-height:1.68}
+  .bubble{font-size:clamp(20px,3.9vh,28px);line-height:1.5}
+}
+</style>
+
+<style id="v28-layer-sizing">
+/* dialogue always above portrait, with wider readable line lengths */
+#conversation{z-index:13!important;pointer-events:none}
+#conversation .bubble-wrap{max-width:100%!important;width:auto!important}
+#conversation .bubble{max-width:100%!important;width:var(--dialog-width,650px);padding:22px 30px;overflow-wrap:normal;word-break:normal;line-break:strict}
+#conversation.rightSpeaker{left:4%!important;right:13%!important;justify-content:flex-start!important}
+#conversation.leftSpeaker{left:13%!important;right:4%!important;justify-content:flex-end!important}
+#portrait{z-index:8!important}
+.controls{z-index:16}
+/* enlarge header but reserve a separate strip for reading */
+.top{min-height:102px!important;align-items:center!important;padding:10px 24px!important;gap:18px!important}
+.game-corner-logo{width:clamp(142px,15vw,220px)!important;height:clamp(52px,6.2vw,82px)!important}
+.chapter-badge{font-size:clamp(14px,1.4vw,19px)!important;padding:7px 15px!important}
+.party-hud{gap:14px!important;max-width:min(62vw,900px)!important}
+.hud-block{padding:10px 14px!important}
+.hud-title{font-size:13px!important}
+.equip-chip{font-size:16px!important;min-height:38px!important}
+.ally-chip img{width:42px!important;height:42px!important}
+.ally-chip span{font-size:14px!important}
+#narrative{top:clamp(126px,17vh,182px)!important;bottom:12%!important}
+@media(max-width:900px){
+ .top{min-height:82px!important;padding:7px 12px!important;gap:8px!important}
+ .game-corner-logo{width:135px!important;height:51px!important}
+ .party-hud{max-width:100%!important;gap:7px!important}
+ .hud-block{padding:7px 9px!important}
+ .hud-title{font-size:11px!important}
+ .equip-chip{font-size:12px!important;min-height:29px!important}
+ .ally-chip img{width:30px!important;height:30px!important}
+ .ally-chip span{font-size:11px!important}
+ #narrative{top:clamp(108px,17vh,146px)!important;bottom:14%!important}
+ #conversation.rightSpeaker{left:3%!important;right:9%!important}
+ #conversation.leftSpeaker{left:9%!important;right:3%!important}
+ #conversation .bubble{padding:15px 18px}
+}
+@media(orientation:portrait) and (max-width:700px){
+ #narrative{top:clamp(145px,20vh,205px)!important;bottom:12%!important}
+ #conversation{max-height:55vh;overflow:visible}
+ #conversation .bubble{max-height:52vh;overflow:auto}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .top{flex-direction:row!important;min-height:57px!important;padding:4px 10px!important}
+ .game-corner-logo{width:102px!important;height:37px!important}
+ .chapter-badge{font-size:11px!important;padding:3px 8px!important}
+ .party-hud{gap:5px!important;max-width:57vw!important}
+ .hud-block{padding:4px 6px!important;gap:3px!important}
+ .hud-title{font-size:9px!important}
+ .equip-chip{font-size:10px!important;min-height:22px!important;padding:3px 6px!important}
+ .ally-chip img{width:21px!important;height:21px!important}
+ .ally-chip span{font-size:9px!important}
+ #narrative{top:67px!important;bottom:15%!important}
+ #conversation .bubble{padding:9px 14px}
+}
+</style><style id="v29-dialog-near-character">
+/* Dialogue occupies the area closest to the speaker, not the opposite screen edge. */
+#conversation.rightSpeaker{left:3%!important;right:24%!important;justify-content:flex-end!important;padding-right:0!important}
+#conversation.leftSpeaker{left:24%!important;right:3%!important;justify-content:flex-start!important;padding-left:0!important}
+#conversation.rightSpeaker .bubble-wrap,#conversation.leftSpeaker .bubble-wrap{width:auto!important;max-width:min(68vw,860px)!important}
+#conversation .bubble{max-width:100%!important}
+@media (orientation:portrait) and (max-width:700px){
+ #conversation.rightSpeaker{left:3%!important;right:15%!important;justify-content:flex-end!important}
+ #conversation.leftSpeaker{left:15%!important;right:3%!important;justify-content:flex-start!important}
+ #conversation .bubble-wrap{max-width:77vw!important}
+}
+@media (orientation:landscape) and (max-height:520px){
+ #conversation.rightSpeaker{left:3%!important;right:23%!important;justify-content:flex-end!important}
+ #conversation.leftSpeaker{left:23%!important;right:3%!important;justify-content:flex-start!important}
+ #conversation .bubble-wrap{max-width:66vw!important}
+}
+</style><style id="v30-dialog-small-offset">
+/* A slight move away from character while preserving width, tail and layering. */
+#conversation.rightSpeaker{right:28%!important}
+#conversation.leftSpeaker{left:28%!important}
+@media (orientation:portrait) and (max-width:700px){
+ #conversation.rightSpeaker{right:18%!important}
+ #conversation.leftSpeaker{left:18%!important}
+}
+@media (orientation:landscape) and (max-height:520px){
+ #conversation.rightSpeaker{right:27%!important}
+ #conversation.leftSpeaker{left:27%!important}
+}
+</style>
+<style id="v32-item-speaker-hud">
+#conversation{z-index:14 !important}
+#conversation .bubble-wrap{gap:12px}
+.speaker{display:inline-flex;align-self:flex-start;max-width:max-content;padding:8px 18px;border-radius:999px;border:1px solid rgba(248,233,188,.42);background:linear-gradient(180deg,rgba(23,26,35,.94),rgba(44,37,28,.88));color:#fff0c6 !important;font:700 clamp(18px,1.65vw,28px) 'Yu Mincho','Hiragino Mincho ProN',serif !important;letter-spacing:.16em;text-shadow:0 2px 6px rgba(0,0,0,.78);box-shadow:0 8px 18px rgba(0,0,0,.28)}
+#conversation.leftSpeaker .speaker{align-self:flex-end;padding-right:18px}
+#conversation.rightSpeaker .speaker{padding-left:18px}
+.party-hud{align-items:stretch !important}
+.hud-block{justify-content:flex-start;min-height:92px}
+.equipment-block,.ally-block{min-height:92px}
+#itemOverlay{position:absolute;inset:0;z-index:16;display:none;align-items:center;justify-content:center;padding:7vh 7vw;background:radial-gradient(circle at center, rgba(11,15,27,.18), rgba(5,6,12,.62) 72%, rgba(3,4,9,.82));backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#itemOverlay.show{display:flex}
+.item-shell{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;width:min(58vw,740px);min-width:min(78vw,560px)}
+#itemFrame{width:100%;height:auto;display:block;filter:drop-shadow(0 16px 42px rgba(0,0,0,.45))}
+.item-core{position:absolute;inset:15% 14% 28% 14%;display:flex;align-items:center;justify-content:center}
+#itemImage{width:58%;max-width:310px;height:auto;display:block;filter:drop-shadow(0 14px 28px rgba(92,35,152,.42))}
+.item-meta{position:absolute;left:12%;right:12%;bottom:8.5%;display:flex;flex-direction:column;align-items:center;text-align:center;color:#fff6e2;text-shadow:0 2px 10px rgba(0,0,0,.72)}
+.item-kicker{font:700 clamp(14px,1.05vw,18px) 'Yu Gothic UI','Hiragino Sans',sans-serif;letter-spacing:.38em;color:#f4d99b;margin-bottom:8px}
+.item-name{font:700 clamp(28px,2.4vw,42px) 'Yu Mincho','Hiragino Mincho ProN',serif;letter-spacing:.14em;line-height:1.25}
+.item-desc{font:500 clamp(14px,1.05vw,18px) 'Yu Gothic UI','Hiragino Sans',sans-serif;line-height:1.65;opacity:.96;margin-top:6px;max-width:84%}
+@media (max-width:1100px){
+  .speaker{font-size:clamp(16px,1.65vw,23px);padding:7px 16px}
+  .hud-block,.equipment-block,.ally-block{min-height:86px}
+  .item-shell{width:min(66vw,720px);min-width:min(82vw,500px)}
+}
+@media (max-width:700px){
+  .speaker{font-size:clamp(15px,3.8vw,22px);padding:7px 14px}
+  .hud-block,.equipment-block,.ally-block{min-height:74px}
+  #itemOverlay{padding:5vh 4vw}
+  .item-shell{width:min(92vw,540px);min-width:0}
+  .item-core{inset:16% 12% 30% 12%}
+  #itemImage{width:61%;max-width:220px}
+  .item-meta{left:10%;right:10%;bottom:9.5%}
+  .item-kicker{font-size:12px;letter-spacing:.28em;margin-bottom:6px}
+  .item-name{font-size:clamp(23px,6vw,30px)}
+  .item-desc{font-size:12px;line-height:1.55;max-width:92%}
+}
+</style>
+
+<style id="v33-overrides">
+.bubble-wrap{position:relative;padding-top:26px;gap:0 !important}
+.speaker{
+  position:absolute !important; top:0; left:50%; transform:translate(-50%,-32%);
+  align-self:auto !important; z-index:2;
+  max-width:72%; text-align:center; justify-content:center;
+  padding:8px 22px !important; border-radius:999px;
+  border:1px solid rgba(255,255,255,.78) !important;
+  background:rgba(248,244,234,.96) !important;
+  color:#54462f !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+  text-shadow:none !important;
+  font:700 clamp(18px,1.55vw,26px) 'Yu Mincho','Hiragino Mincho ProN',serif !important;
+  letter-spacing:.12em;
+}
+#conversation.rightSpeaker .speaker, #conversation.leftSpeaker .speaker{padding-left:22px !important; padding-right:22px !important}
+.bubble{margin-top:0}
+#itemOverlay{opacity:0;transition:opacity .4s ease}
+#itemOverlay.show{display:flex;opacity:1}
+#itemOverlay.fadeout{opacity:0}
+.item-meta{bottom:10.5% !important}
+.item-kicker,.item-desc{display:none !important}
+.item-name{font-size:clamp(30px,2.5vw,44px) !important; letter-spacing:.18em; color:#fff7e6}
+@media (max-width:700px){
+  .bubble-wrap{padding-top:22px}
+  .speaker{font-size:clamp(15px,3.9vw,21px) !important; padding:7px 18px !important; max-width:78%}
+  .item-name{font-size:clamp(22px,6.1vw,30px) !important}
+}
+</style>
+
+<style id="v34-mobile-fix">
+html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+body{position:fixed;inset:0}
+#stage{position:fixed !important;inset:0 !important;width:100vw !important;height:100vh !important;height:100dvh !important;min-height:100vh !important;min-height:100dvh !important;max-height:100dvh !important}
+@supports (height: 100svh){
+  #stage{height:100svh !important;min-height:100svh !important;max-height:100svh !important}
+}
+@media (orientation:portrait) and (max-width:900px){
+  #stage{background-position:center center}
+  .top{padding-top:8px !important;gap:6px !important}
+  #portrait{
+    width:min(48vw,320px) !important;
+    height:62% !important;
+    bottom:12.5% !important;
+  }
+  #portrait.right{right:-4% !important}
+  #portrait.left{left:-4% !important}
+  #conversation{
+    top:24% !important;
+    bottom:20% !important;
+    align-items:center !important;
+  }
+  #conversation.rightSpeaker{left:6% !important;right:23% !important;padding-right:0 !important}
+  #conversation.leftSpeaker{left:23% !important;right:6% !important;padding-left:0 !important}
+  .bubble-wrap{width:min(66vw,510px) !important;padding-top:20px !important}
+  .bubble{font-size:clamp(21px,5.4vw,28px) !important;line-height:1.56 !important;padding:18px 20px !important;border-radius:24px !important}
+  .speaker{font-size:clamp(14px,3.6vw,18px) !important;padding:6px 16px !important;max-width:76% !important}
+  #narrative{
+    left:6.5% !important; right:6.5% !important;
+    top:18% !important; bottom:15.5% !important;
+    padding:2.6vh 3.6vw !important;
+    font-size:clamp(22px,5.6vw,29px) !important;
+    line-height:1.72 !important;
+  }
+  #narrativeText .line{min-height:1.45em !important;margin-bottom:.28em !important}
+  .controls{padding:10px 10px calc(10px + env(safe-area-inset-bottom)) !important;gap:8px !important;flex-wrap:wrap !important}
+  .controls .hint{font-size:10px !important}
+}
+@media (orientation:landscape) and (max-height:900px){
+  html,body,#stage{width:100vw !important;max-width:100vw !important}
+  #stage{left:0 !important;top:0 !important}
+  #portrait{
+    width:min(34vw,360px) !important;
+    height:83% !important;
+    bottom:5% !important;
+  }
+  #portrait.right{right:-1.5% !important}
+  #portrait.left{left:-1.5% !important}
+  #conversation{top:13% !important;bottom:17% !important}
+  #conversation.rightSpeaker{left:4% !important;right:23% !important}
+  #conversation.leftSpeaker{left:23% !important;right:4% !important}
+  .bubble-wrap{width:min(54vw,760px) !important}
+  #narrative{top:15% !important;bottom:16.5% !important;left:7% !important;right:11% !important}
+}
+</style>
+
+<style id="v35-mobile-ui">
+body.mobile-portrait #stage,
+body.mobile-landscape #stage{position:fixed !important; inset:0 !important; width:100vw !important; height:100vh !important; height:100dvh !important;}
+body.mobile-portrait .speaker,
+body.mobile-landscape .speaker{writing-mode:horizontal-tb !important; white-space:nowrap !important; text-orientation:mixed !important;}
+
+/* ===== Smartphone portrait: dedicated UI ===== */
+body.mobile-portrait{overflow:hidden}
+body.mobile-portrait .top{
+  padding:8px 10px 0 !important;
+  gap:6px !important;
+  min-height:auto !important;
+}
+body.mobile-portrait .top-brand{width:100%; align-items:flex-start; justify-content:space-between; gap:8px}
+body.mobile-portrait .game-corner-logo{width:124px !important; height:44px !important}
+body.mobile-portrait .tags{font-size:11px !important}
+body.mobile-portrait .chapter-badge{font-size:12px !important; padding:4px 10px !important}
+body.mobile-portrait .party-hud{
+  width:100%; max-width:none !important; overflow:auto; gap:8px !important; padding-bottom:1px !important;
+}
+body.mobile-portrait .hud-block{min-height:72px !important; padding:7px 8px !important; border-radius:12px !important; min-width:max-content}
+body.mobile-portrait .hud-title{font-size:10px !important}
+body.mobile-portrait .equip-chip{font-size:11px !important; min-height:27px !important; padding:5px 9px !important}
+body.mobile-portrait .ally-chip img{width:25px !important; height:25px !important}
+body.mobile-portrait .ally-chip span{font-size:10px !important}
+
+body.mobile-portrait #portrait{
+  left:50% !important; right:auto !important; transform:translateX(-50%) !important;
+  width:min(88vw,520px) !important; height:64% !important; bottom:14% !important;
+  object-position:center bottom !important; z-index:8 !important;
+}
+body.mobile-portrait #portrait.left,
+body.mobile-portrait #portrait.right{left:50% !important; right:auto !important; transform:translateX(-50%) !important; object-position:center bottom !important}
+
+body.mobile-portrait #conversation{
+  left:4.5% !important; right:4.5% !important; top:auto !important; bottom:7.5% !important;
+  align-items:flex-end !important; justify-content:center !important; z-index:14 !important;
+}
+body.mobile-portrait #conversation.leftSpeaker,
+body.mobile-portrait #conversation.rightSpeaker{left:4.5% !important; right:4.5% !important; justify-content:center !important; padding:0 !important}
+body.mobile-portrait .bubble-wrap{
+  position:relative !important; width:100% !important; max-width:none !important; padding-top:0 !important;
+  align-items:center !important; gap:0 !important;
+}
+body.mobile-portrait .speaker{
+  position:absolute !important; left:50% !important; top:-16px !important; bottom:auto !important;
+  transform:translateX(-50%) !important; z-index:3 !important;
+  max-width:68vw !important; overflow:hidden; text-overflow:ellipsis;
+  font:700 clamp(16px,4.2vw,20px) 'Yu Mincho','Hiragino Mincho ProN',serif !important;
+  letter-spacing:.12em !important; color:#584a33 !important; text-shadow:none !important;
+  background:rgba(248,244,234,.97) !important; border:1px solid rgba(255,255,255,.82) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.18) !important; border-radius:999px !important; padding:6px 18px !important;
+}
+body.mobile-portrait .bubble{
+  width:100% !important; min-height:110px !important; padding:24px 20px 18px !important;
+  border-radius:24px !important; font-size:clamp(24px,6.2vw,31px) !important;
+  line-height:1.53 !important; text-align:left !important;
+  background:rgba(248,244,234,.88) !important;
+}
+body.mobile-portrait .bubble::after{display:none !important}
+
+body.mobile-portrait #narrative{
+  left:5.5% !important; right:5.5% !important; top:15.5% !important; bottom:15% !important;
+  padding:2.5vh 3.6vw !important; font-size:clamp(24px,6.1vw,31px) !important;
+  line-height:1.72 !important; background:linear-gradient(180deg,rgba(10,14,23,.22),rgba(10,14,23,.35),rgba(10,14,23,.18)) !important;
+}
+body.mobile-portrait #narrative .line{line-height:1.72 !important; min-height:1.36em !important; margin-bottom:.24em !important}
+body.mobile-portrait #chapterTitle{font-size:clamp(34px,9vw,46px) !important}
+body.mobile-portrait #chapterSub{font-size:clamp(16px,4vw,20px) !important}
+body.mobile-portrait #itemOverlay{padding:4.2vh 3vw !important}
+body.mobile-portrait .item-shell{width:min(94vw,560px) !important}
+body.mobile-portrait .controls{
+  padding:9px 10px calc(10px + env(safe-area-inset-bottom)) !important; gap:8px !important; flex-wrap:wrap !important;
+}
+body.mobile-portrait .controls button{min-height:32px !important; font-size:13px !important; padding:6px 11px !important}
+body.mobile-portrait .controls .hint{font-size:10px !important; width:100%; text-align:center; order:99}
+
+/* ===== Smartphone landscape ===== */
+body.mobile-landscape .top{padding-top:6px !important; gap:7px !important; min-height:58px !important}
+body.mobile-landscape .game-corner-logo{width:120px !important; height:38px !important}
+body.mobile-landscape .party-hud{gap:7px !important}
+body.mobile-landscape .hud-block{min-height:68px !important; padding:6px 8px !important}
+body.mobile-landscape .hud-title{font-size:10px !important}
+body.mobile-landscape .equip-chip{min-height:25px !important; font-size:11px !important; padding:4px 8px !important}
+body.mobile-landscape .ally-chip img{width:24px !important; height:24px !important}
+body.mobile-landscape .ally-chip span{font-size:10px !important}
+body.mobile-landscape #portrait{width:min(32vw,360px) !important; height:84% !important; bottom:4% !important; transform:none !important}
+body.mobile-landscape #portrait.right{right:-1.2% !important; left:auto !important}
+body.mobile-landscape #portrait.left{left:-1.2% !important; right:auto !important}
+body.mobile-landscape #conversation{top:12.5% !important; bottom:16% !important; z-index:14 !important}
+body.mobile-landscape #conversation.rightSpeaker{left:4% !important; right:23% !important; justify-content:flex-start !important}
+body.mobile-landscape #conversation.leftSpeaker{left:23% !important; right:4% !important; justify-content:flex-end !important}
+body.mobile-landscape .bubble-wrap{width:min(54vw,760px) !important; padding-top:10px !important}
+body.mobile-landscape .speaker{
+  max-width:38vw !important; overflow:hidden; text-overflow:ellipsis;
+  font:700 clamp(13px,2.6vh,18px) 'Yu Mincho','Hiragino Mincho ProN',serif !important;
+  padding:5px 14px !important;
+}
+body.mobile-landscape .bubble{font-size:clamp(20px,3.9vh,28px) !important; line-height:1.5 !important; padding:18px 22px !important}
+body.mobile-landscape #narrative{top:14.5% !important; bottom:16% !important; left:7% !important; right:10% !important; font-size:clamp(20px,3.8vh,27px) !important; line-height:1.63 !important}
+body.mobile-landscape #narrative .line{line-height:1.63 !important; min-height:1.3em !important}
+body.mobile-landscape .controls{padding:7px 10px calc(7px + env(safe-area-inset-bottom)) !important}
+body.mobile-landscape .controls button{font-size:12px !important; min-height:28px !important; padding:5px 10px !important}
+body.mobile-landscape .controls .hint{font-size:10px !important}
+</style>
+
+<style id="v36-portrait-retune">
+/* Smartphone portrait retune */
+body.mobile-portrait #portrait{
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:min(106vw,620px) !important;
+  max-width:106vw !important;
+  height:74% !important;
+  bottom:15.5% !important;
+  object-position:center bottom !important;
+}
+body.mobile-portrait #portrait.left,
+body.mobile-portrait #portrait.right{
+  left:50% !important;
+  right:auto !important;
+  transform:translateX(-50%) !important;
+}
+body.mobile-portrait #conversation{
+  left:6% !important;
+  right:6% !important;
+  bottom:16% !important;
+  top:auto !important;
+  align-items:flex-end !important;
+}
+body.mobile-portrait #conversation.leftSpeaker,
+body.mobile-portrait #conversation.rightSpeaker{
+  left:6% !important;
+  right:6% !important;
+  bottom:16% !important;
+}
+body.mobile-portrait .bubble-wrap{
+  width:100% !important;
+  max-width:none !important;
+}
+body.mobile-portrait .speaker{
+  top:-18px !important;
+  max-width:62vw !important;
+}
+body.mobile-portrait .bubble{
+  min-height:126px !important;
+  padding:28px 22px 18px !important;
+  border-radius:26px !important;
+  font-size:clamp(24px,6.4vw,32px) !important;
+  line-height:1.55 !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.22) !important;
+}
+body.mobile-portrait #narrative{
+  top:15% !important;
+  bottom:17% !important;
+  font-size:clamp(24px,6.15vw,31px) !important;
+}
+body.mobile-portrait .controls{
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
+}
+</style>
+
+<style id="v37-refine">
+/* Global HUD simplification */
+.party-hud{max-width:none !important}
+.ally-block{min-height:auto !important}
+.ally-block.icon-only{padding:7px 9px 8px !important}
+.ally-block.icon-only .hud-title{font-size:11px !important; letter-spacing:.16em}
+.ally-block.icon-only .ally-list{gap:6px !important; flex-wrap:nowrap}
+.ally-block.icon-only .ally-chip{padding:0 !important; border:none !important; background:transparent !important; box-shadow:none !important}
+.ally-block.icon-only .ally-chip span{display:none !important}
+.ally-block.icon-only .ally-chip img{width:30px !important; height:30px !important; border-radius:999px; object-fit:cover; object-position:center top; border:1px solid rgba(255,241,213,.28); background:rgba(0,0,0,.28)}
+@media (max-width:840px){
+  .ally-block.icon-only{padding:6px 8px 7px !important}
+  .ally-block.icon-only .ally-chip img{width:26px !important; height:26px !important}
+}
+
+/* Smartphone portrait: move speech upward and reduce wasted top space */
+body.mobile-portrait #portrait{
+  width:min(110vw,660px) !important;
+  height:78% !important;
+  bottom:9.5% !important;
+}
+body.mobile-portrait #conversation,
+body.mobile-portrait #conversation.leftSpeaker,
+body.mobile-portrait #conversation.rightSpeaker{
+  left:6% !important;
+  right:6% !important;
+  bottom:28% !important;
+  top:auto !important;
+}
+body.mobile-portrait .bubble-wrap{width:100% !important}
+body.mobile-portrait .speaker{top:-17px !important; max-width:60vw !important}
+body.mobile-portrait .bubble{
+  min-height:118px !important;
+  padding:26px 22px 18px !important;
+}
+body.mobile-portrait #narrative{
+  top:15% !important;
+  bottom:17% !important;
+}
+body.mobile-portrait .party-hud{width:auto !important; max-width:46vw !important; overflow:visible !important; margin-left:auto !important}
+body.mobile-portrait .hud-block{min-width:auto !important}
+body.mobile-portrait .ally-block.icon-only{padding:5px 7px 6px !important}
+body.mobile-portrait .ally-block.icon-only .hud-title{display:none !important}
+body.mobile-portrait .ally-block.icon-only .ally-list{gap:5px !important}
+body.mobile-portrait .ally-block.icon-only .ally-chip img{width:24px !important; height:24px !important}
+
+/* Smartphone landscape small allies, no names */
+body.mobile-landscape .party-hud{max-width:27vw !important}
+body.mobile-landscape .ally-block.icon-only{padding:5px 7px 6px !important}
+body.mobile-landscape .ally-block.icon-only .hud-title{display:none !important}
+body.mobile-landscape .ally-block.icon-only .ally-list{gap:5px !important}
+body.mobile-landscape .ally-block.icon-only .ally-chip img{width:22px !important; height:22px !important}
+</style>
+
+<style id="v38-mobile-layout-refine">
+/* mobile global header placement */
+body.mobile-portrait .top,
+body.mobile-landscape .top{display:flex !important; flex-direction:row !important; align-items:flex-start !important; justify-content:space-between !important}
+body.mobile-portrait .top-brand,
+body.mobile-landscape .top-brand{display:flex !important; flex-direction:column !important; align-items:flex-start !important; justify-content:flex-start !important; gap:4px !important; width:auto !important; flex:0 0 auto !important}
+body.mobile-portrait .top-labels,
+body.mobile-landscape .top-labels{display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:4px !important; padding-top:0 !important}
+body.mobile-portrait .tags,
+body.mobile-landscape .tags{display:none !important}
+body.mobile-portrait .chapter-badge,
+body.mobile-landscape .chapter-badge{margin:0 !important; min-width:auto !important}
+
+/* right-top allies in one row */
+body.mobile-portrait .party-hud,
+body.mobile-landscape .party-hud{
+  margin-left:auto !important; margin-right:0 !important; width:auto !important; max-width:none !important;
+  overflow:visible !important; flex:0 0 auto !important; align-items:flex-start !important;
+}
+body.mobile-portrait .hud-block,
+body.mobile-landscape .hud-block{min-width:auto !important; width:auto !important}
+body.mobile-portrait .ally-block.icon-only,
+body.mobile-landscape .ally-block.icon-only{padding:5px 6px 6px !important}
+body.mobile-portrait .ally-block.icon-only .ally-list,
+body.mobile-landscape .ally-block.icon-only .ally-list{
+  display:flex !important; flex-wrap:nowrap !important; white-space:nowrap !important; gap:5px !important;
+}
+body.mobile-portrait .ally-block.icon-only .ally-chip,
+body.mobile-landscape .ally-block.icon-only .ally-chip{flex:0 0 auto !important}
+body.mobile-portrait .ally-block.icon-only .ally-chip img{width:23px !important; height:23px !important}
+body.mobile-landscape .ally-block.icon-only .ally-chip img{width:21px !important; height:21px !important}
+
+/* portrait speech bubble higher, tail endpoint above mid-screen */
+body.mobile-portrait #portrait{
+  width:min(110vw,660px) !important;
+  height:79% !important;
+  bottom:8% !important;
+}
+body.mobile-portrait #conversation,
+body.mobile-portrait #conversation.leftSpeaker,
+body.mobile-portrait #conversation.rightSpeaker{
+  left:6% !important; right:6% !important; top:auto !important;
+  bottom:44% !important; align-items:flex-end !important; justify-content:center !important;
+}
+body.mobile-portrait .bubble-wrap{width:100% !important; max-width:none !important}
+body.mobile-portrait .speaker{top:-18px !important; max-width:60vw !important}
+body.mobile-portrait .bubble{
+  min-height:112px !important; padding:24px 20px 18px !important; border-radius:26px !important;
+  font-size:clamp(24px,6.4vw,32px) !important; line-height:1.52 !important;
+}
+/* keep narrative separate */
+body.mobile-portrait #narrative{top:16% !important; bottom:16% !important}
+
+/* landscape fine tune */
+body.mobile-landscape .top{padding-top:6px !important; min-height:54px !important}
+body.mobile-landscape .game-corner-logo{width:112px !important; height:36px !important}
+body.mobile-landscape .chapter-badge{font-size:11px !important; padding:4px 9px !important}
+</style>
+
+<style id="v39-bubble-high-portrait">
+/* smartphone portrait: push speech bubble much higher */
+body.mobile-portrait #conversation,
+body.mobile-portrait #conversation.leftSpeaker,
+body.mobile-portrait #conversation.rightSpeaker{
+  left:6% !important;
+  right:6% !important;
+  top:auto !important;
+  bottom:56% !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+}
+body.mobile-portrait .bubble-wrap{width:100% !important; max-width:none !important}
+body.mobile-portrait .speaker{top:-18px !important; max-width:58vw !important}
+body.mobile-portrait .bubble{
+  min-height:108px !important;
+  padding:22px 20px 17px !important;
+  border-radius:26px !important;
+}
+body.mobile-portrait #portrait{
+  height:79% !important;
+  bottom:7% !important;
+}
+</style>
+
+<style id="v40-portrait-separate-message-ui">
+/* One authoritative vertical-phone layout, separated from legacy floating bubbles. */
+@media (orientation:portrait) and (max-width:900px){
+ body #stage{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:0!important;overflow:hidden!important}
+ body #portrait,body #portrait.left,body #portrait.right,
+ body.mobile-portrait #portrait,body.mobile-portrait #portrait.left,body.mobile-portrait #portrait.right{
+  position:absolute!important;left:50%!important;right:auto!important;
+  transform:translateX(-50%)!important;
+  width:min(112vw,650px)!important;height:73%!important;
+  bottom:22%!important;object-fit:contain!important;object-position:center bottom!important;
+  z-index:7!important;pointer-events:none!important;
+ }
+ body #conversation,body #conversation.leftSpeaker,body #conversation.rightSpeaker,
+ body.mobile-portrait #conversation,body.mobile-portrait #conversation.leftSpeaker,body.mobile-portrait #conversation.rightSpeaker{
+  position:absolute!important;left:3.5%!important;right:3.5%!important;
+  width:93%!important;top:auto!important;bottom:calc(62px + env(safe-area-inset-bottom))!important;
+  height:auto!important;max-height:32dvh!important;
+  padding:0!important;margin:0!important;
+  align-items:stretch!important;justify-content:center!important;
+  z-index:19!important;
+ }
+ body .bubble-wrap,body.mobile-portrait .bubble-wrap{
+  position:relative!important;display:flex!important;flex-direction:column!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  padding:20px 0 0!important;gap:0!important;align-items:stretch!important;
+ }
+ body #conversation .speaker,body.mobile-portrait #conversation .speaker,
+ body #conversation.rightSpeaker .speaker,body #conversation.leftSpeaker .speaker{
+  position:absolute!important;left:18px!important;right:auto!important;top:0!important;bottom:auto!important;
+  transform:none!important;align-self:flex-start!important;z-index:3!important;
+  display:block!important;max-width:calc(100% - 36px)!important;
+  width:max-content!important;white-space:nowrap!important;writing-mode:horizontal-tb!important;
+  padding:6px 17px!important;margin:0!important;border-radius:12px 12px 0 0!important;
+  font:700 clamp(17px,4.3vw,22px) 'Yu Mincho','Hiragino Mincho ProN',serif!important;
+  line-height:1.35!important;letter-spacing:.08em!important;
+  color:#453828!important;text-shadow:none!important;
+  border:1px solid #ffffffc9!important;border-bottom:none!important;
+  background:rgba(250,246,238,.97)!important;
+ }
+ body #conversation .bubble,body.mobile-portrait #conversation .bubble{
+  display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  max-height:calc(32dvh - 20px)!important;min-height:96px!important;
+  margin:0!important;padding:25px 18px 15px!important;
+  border-radius:0 17px 17px 17px!important;overflow:auto!important;
+  background:rgba(250,246,238,.93)!important;
+  border:1px solid #ffffffb8!important;
+  font:700 clamp(24px,6.2vw,32px)/1.5 'Yu Mincho','Hiragino Mincho ProN',serif!important;
+  letter-spacing:.025em!important;color:#24212b!important;
+  box-shadow:0 12px 34px #0509158a!important;
+  overflow-wrap:anywhere!important;
+ }
+ body #conversation .bubble:after,body #conversation .bubble:before{display:none!important;content:none!important}
+ body #narrative,body.mobile-portrait #narrative{
+  top:15%!important;bottom:16%!important;left:5%!important;right:5%!important;
+  font-size:clamp(24px,6.1vw,31px)!important;
+ }
+ body .controls{z-index:21!important;min-height:53px!important;padding:8px 9px calc(8px + env(safe-area-inset-bottom))!important;flex-wrap:nowrap!important}
+ body .controls .hint{display:none!important}
+ body #itemOverlay{z-index:25!important}
+ body #chapterCard{z-index:24!important}
+}
+/* narrow landscape: keep side speech design, prevent vertical name wrap */
+@media (orientation:landscape) and (max-height:700px){
+ body #stage{min-height:0!important;height:100dvh!important;max-height:100dvh!important}
+ body #conversation .speaker{white-space:nowrap!important;writing-mode:horizontal-tb!important;width:max-content!important;max-width:50vw!important}
+}
+</style>
+
+<style id="v41-unified-message-window">
+/* All orientations: unified Dragon Quest-style dialogue window. */
+#conversation, #conversation.leftSpeaker, #conversation.rightSpeaker,
+body.mobile-portrait #conversation,body.mobile-portrait #conversation.leftSpeaker,body.mobile-portrait #conversation.rightSpeaker,
+body.mobile-landscape #conversation,body.mobile-landscape #conversation.leftSpeaker,body.mobile-landscape #conversation.rightSpeaker{
+ position:absolute !important; left:5% !important; right:5% !important;
+ top:auto !important; bottom:9% !important; height:auto !important; min-height:0 !important;
+ padding:0 !important; align-items:stretch !important; justify-content:center !important; z-index:22 !important;
+}
+#conversation .bubble-wrap,body.mobile-portrait #conversation .bubble-wrap,body.mobile-landscape #conversation .bubble-wrap{
+ position:relative !important; display:flex !important; flex-direction:column !important;
+ width:100% !important; max-width:100% !important; gap:0 !important;
+ padding:0 !important; align-items:stretch !important;
+}
+#conversation .speaker, #conversation.leftSpeaker .speaker,#conversation.rightSpeaker .speaker,
+body.mobile-portrait #conversation .speaker,body.mobile-landscape #conversation .speaker{
+ position:relative !important; display:block !important; left:auto !important; right:auto !important;
+ top:auto !important; bottom:auto !important; transform:none !important;
+ align-self:flex-start !important; margin:0 0 5px 12px !important;
+ border:0 !important; border-radius:0 !important; box-shadow:none !important;
+ padding:0 !important; background:transparent !important;
+ color:#ffe3a3 !important; text-shadow:0 1px 6px #000 !important;
+ max-width:100% !important; white-space:nowrap !important;
+ writing-mode:horizontal-tb !important; text-orientation:mixed !important;
+ font:700 clamp(17px,1.6vw,24px) 'Yu Mincho','Hiragino Mincho ProN',serif !important;
+}
+#conversation .bubble,#conversation.leftSpeaker .bubble,#conversation.rightSpeaker .bubble,
+body.mobile-portrait #conversation .bubble,body.mobile-landscape #conversation .bubble{
+ width:100% !important; max-width:100% !important;
+ min-height:110px !important; max-height:28dvh !important; overflow-y:auto !important;
+ margin:0 !important; padding:20px 27px !important;
+ background:rgba(12,20,36,.91) !important; color:#fff8e8 !important;
+ border:2px solid rgba(229,196,131,.85) !important; border-radius:12px !important;
+ box-shadow:0 9px 35px rgba(0,0,0,.43),inset 0 0 0 1px rgba(255,255,255,.10) !important;
+ backdrop-filter:blur(7px) !important;
+ font:600 clamp(24px,2.35vw,35px)/1.58 'Yu Mincho','Hiragino Mincho ProN',serif !important;
+ white-space:pre-wrap !important; overflow-wrap:anywhere !important;
+}
+#conversation .bubble::before,#conversation .bubble::after{display:none !important; content:none !important}
+/* Character remains the visual lead, above the text panel. */
+#portrait{z-index:8 !important}
+@media(max-width:900px) and (orientation:portrait){
+ #portrait,#portrait.left,#portrait.right,body.mobile-portrait #portrait{
+  left:50% !important; right:auto !important; transform:translateX(-50%) !important;
+  width:min(112vw,670px) !important; height:70% !important; bottom:18% !important;
+  object-position:center bottom !important;
+ }
+ #conversation,body.mobile-portrait #conversation,body.mobile-portrait #conversation.leftSpeaker,body.mobile-portrait #conversation.rightSpeaker{
+  left:3% !important; right:3% !important; bottom:9.5% !important;
+ }
+ #conversation .speaker,body.mobile-portrait #conversation .speaker{font-size:clamp(16px,4.4vw,22px) !important}
+ #conversation .bubble,body.mobile-portrait #conversation .bubble{
+  min-height:112px !important; max-height:30dvh !important;
+  padding:16px 18px !important; font-size:clamp(23px,5.8vw,31px) !important;
+  line-height:1.54 !important;
+ }
+}
+@media(orientation:landscape) and (max-height:560px){
+ #conversation,body.mobile-landscape #conversation,body.mobile-landscape #conversation.leftSpeaker,body.mobile-landscape #conversation.rightSpeaker{
+  left:5% !important; right:5% !important; bottom:12% !important;
+ }
+ #conversation .speaker,body.mobile-landscape #conversation .speaker{font-size:clamp(13px,3vh,18px) !important;margin-bottom:3px !important}
+ #conversation .bubble,body.mobile-landscape #conversation .bubble{
+  min-height:55px !important;max-height:31dvh !important;padding:10px 15px !important;
+  font-size:clamp(17px,4vh,25px) !important;line-height:1.4 !important;
+ }
+}
+</style>
+
+<style id="v42-final-layout-fixes">
+/* Vertical smartphone: message panel fills the width with a safe margin above controls. */
+@media (orientation:portrait) and (max-width:900px){
+ #conversation, #conversation.leftSpeaker, #conversation.rightSpeaker,
+ body.mobile-portrait #conversation, body.mobile-portrait #conversation.leftSpeaker,
+ body.mobile-portrait #conversation.rightSpeaker{
+  box-sizing:border-box !important;
+  left:1.5% !important; right:1.5% !important;
+  width:97% !important; max-width:none !important;
+  bottom:calc(94px + env(safe-area-inset-bottom)) !important;
+  padding:0 !important;
+ }
+ #conversation .bubble-wrap,body.mobile-portrait #conversation .bubble-wrap{
+  width:100% !important; max-width:100% !important; min-width:0 !important;
+ }
+ #conversation .bubble,body.mobile-portrait #conversation .bubble{
+  box-sizing:border-box !important;
+  width:100% !important; max-width:100% !important;
+ }
+ .controls{
+  bottom:0 !important;
+  padding-bottom:calc(9px + env(safe-area-inset-bottom)) !important;
+ }
+ /* Selected portrait gets a snugger carousel frame, without changing spin behavior. */
+ .roulette-card{
+  height:min(32dvh,235px) !important;
+  width:clamp(126px,38vw,200px) !important;
+  padding:5px !important;
+ }
+ .roulette-card img{object-fit:contain !important;object-position:center bottom !important}
+ .roulette-card .roulette-name{padding:4px 0 !important}
+}
+@media (orientation:landscape) and (max-height:530px){
+ .roulette-card{
+  height:min(43dvh,210px) !important;
+  width:min(23vw,180px) !important;
+ }
+}
+</style>
+
+<style id="v43-clean-desktop-layout">
+/* PC / wide-screen presentation, isolated from mobile portrait. */
+@media (min-width:1000px) and (orientation:landscape){
+  #stage{width:100vw!important;height:100dvh!important;min-height:0!important;max-width:100vw!important}
+  .top{display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:20px!important;min-height:98px!important;padding:15px 2.4vw!important}
+  .top-brand{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:0!important;width:auto!important}
+  .game-corner-logo{width:clamp(190px,16vw,295px)!important;height:clamp(62px,7.1vh,90px)!important;object-fit:contain!important;object-position:left center!important}
+  .top-labels{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important}
+  .top .tags{display:none!important}
+  .chapter-badge{font-size:clamp(17px,1.4vw,23px)!important;padding:7px 15px!important;min-width:120px!important}
+  .party-hud{display:flex!important;flex-direction:row!important;justify-content:flex-end!important;align-items:flex-start!important;max-width:none!important;width:auto!important;gap:12px!important;margin:0!important;padding-top:6px!important}
+  .party-hud[hidden]{display:none!important}
+  .ally-block.icon-only{padding:10px 14px!important;min-height:0!important}
+  .ally-block.icon-only .hud-title{font-size:15px!important;margin-bottom:4px!important}
+  .ally-block.icon-only .ally-list{display:flex!important;flex-wrap:nowrap!important;gap:10px!important}
+  .ally-block.icon-only .ally-chip img{width:clamp(45px,3.5vw,64px)!important;height:clamp(45px,3.5vw,64px)!important}
+  #portrait,#portrait.left,#portrait.right{left:50%!important;right:auto!important;bottom:14%!important;width:min(53vw,790px)!important;height:75%!important;object-fit:contain!important;object-position:center bottom!important;transform:translateX(-50%)!important;z-index:8!important}
+  #conversation,#conversation.leftSpeaker,#conversation.rightSpeaker{left:4%!important;right:4%!important;top:auto!important;bottom:calc(90px + 2.5vh)!important;width:92%!important;max-width:none!important;min-width:0!important;z-index:22!important;padding:0!important;justify-content:center!important}
+  #conversation .bubble-wrap{width:100%!important;max-width:100%!important;min-width:0!important}
+  #conversation .speaker{font-size:clamp(21px,1.8vw,30px)!important;margin:0 0 7px 14px!important}
+  #conversation .bubble{width:100%!important;min-height:105px!important;max-height:29vh!important;padding:17px 29px!important;font-size:clamp(29px,2.45vw,42px)!important;line-height:1.58!important;overflow-y:auto!important}
+  #narrative{left:10%!important;right:10%!important;top:19%!important;bottom:calc(93px + 2vh)!important;padding:1.9vh 3vw!important;font-size:clamp(33px,2.65vw,46px)!important;line-height:1.8!important}
+  #narrative .line{line-height:1.8!important}
+  .controls{display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;gap:14px!important;left:0!important;right:0!important;bottom:0!important;min-height:78px!important;padding:12px 2.6vw!important;font-size:clamp(15px,1.15vw,19px)!important}
+  .controls button{font-size:clamp(16px,1.25vw,21px)!important;min-height:45px!important;padding:8px 18px!important}
+  .controls .count,.controls #fontSizeLabel{font-size:clamp(15px,1.1vw,18px)!important}
+  .controls .hint{font-size:clamp(12px,.95vw,16px)!important}
+  .font-control{gap:9px!important;padding:5px 8px!important}
+}
+/* Smaller landscape tablets and narrow desktop windows: keep readable size, no postage-stamp controls. */
+@media (orientation:landscape) and (min-width:700px) and (max-width:999px){
+ .game-corner-logo{width:150px!important;height:53px!important}
+ .chapter-badge{font-size:15px!important}
+ .controls button{font-size:15px!important;min-height:38px!important}
+ .controls .count{font-size:14px!important}
+}
+</style>
+
+<style id="v44-landscape-based-on-v23">
+/* v23-inspired wide layout; portrait phone stays on v42-v43 rules. */
+@media (orientation:landscape) and (min-width:1000px){
+ #stage{width:100vw!important;height:100dvh!important;min-height:0!important}
+ .top{display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;padding:13px 2.4vw!important;gap:12px!important;min-height:100px!important}
+ .top-brand{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:4px!important}
+ .game-corner-logo{width:clamp(165px,15vw,260px)!important;height:clamp(55px,7vh,82px)!important}
+ .top-labels{align-items:flex-start!important}
+ .chapter-badge{font-size:clamp(16px,1.3vw,21px)!important;min-width:100px!important}
+ .party-hud{display:flex!important;align-items:flex-start!important;justify-content:flex-end!important;max-width:none!important;margin-left:auto!important}
+ .party-hud[hidden]{display:none!important}
+ .ally-block.icon-only .ally-chip img{width:clamp(40px,3.4vw,58px)!important;height:clamp(40px,3.4vw,58px)!important}
+ /* Restore side anchoring from v23: never pin all characters to center. */
+ #portrait{position:absolute!important;bottom:15%!important;width:clamp(330px,41vw,690px)!important;height:76%!important;transform:none!important;object-fit:contain!important;z-index:8!important}
+ #portrait.left{left:1%!important;right:auto!important;object-position:left bottom!important;transform:none!important}
+ #portrait.right{right:1%!important;left:auto!important;object-position:right bottom!important;transform:none!important}
+ /* Dialogue remains a fixed window below, clear of controls, and spans the reading zone. */
+ #conversation,#conversation.leftSpeaker,#conversation.rightSpeaker{left:5%!important;right:5%!important;width:90%!important;max-width:none!important;top:auto!important;bottom:clamp(88px,12vh,130px)!important;justify-content:center!important;padding:0!important;z-index:22!important}
+ #conversation .bubble-wrap{width:100%!important;max-width:100%!important;min-width:0!important}
+ #conversation .bubble{width:100%!important;max-width:none!important;min-height:108px!important;max-height:31vh!important;overflow:auto!important;padding:17px 28px!important;font-size:clamp(29px,2.45vw,42px)!important;line-height:1.6!important}
+ #conversation .speaker{font-size:clamp(19px,1.7vw,27px)!important;white-space:nowrap!important}
+ #narrative{left:8%!important;right:8%!important;top:19%!important;bottom:clamp(100px,15vh,150px)!important;padding:2vh 3.2vw!important;font-size:clamp(33px,2.65vw,46px)!important;line-height:1.78!important}
+ #narrative .line{line-height:1.78!important}
+ .controls{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;gap:12px!important;min-height:75px!important;padding:10px 2.4vw!important;font-size:16px!important}
+ .controls button{font-size:clamp(16px,1.2vw,20px)!important;min-height:43px!important;padding:8px 16px!important}
+ .controls .count,.controls #fontSizeLabel{font-size:16px!important}
+ .controls .hint{font-size:clamp(12px,.95vw,15px)!important}
+}
+/* Mobile landscape: the same left/right visual logic, compact for the short screen. */
+@media (orientation:landscape) and (max-width:999px){
+ #portrait{height:76%!important;width:39vw!important;bottom:15%!important;transform:none!important}
+ #portrait.left{left:0!important;right:auto!important;transform:none!important;object-position:left bottom!important}
+ #portrait.right{right:0!important;left:auto!important;transform:none!important;object-position:right bottom!important}
+ #conversation,#conversation.leftSpeaker,#conversation.rightSpeaker{left:3%!important;right:3%!important;width:94%!important;top:auto!important;bottom:clamp(50px,15vh,82px)!important;justify-content:center!important}
+ #conversation .bubble-wrap{width:100%!important;max-width:100%!important}
+ #conversation .bubble{width:100%!important;max-width:100%!important;font-size:clamp(19px,3.3vh,28px)!important;max-height:30vh!important;overflow:auto!important}
+ #conversation .speaker{font-size:clamp(13px,2.5vh,20px)!important;white-space:nowrap!important}
+ #narrative{font-size:clamp(20px,3.5vh,28px)!important;top:16%!important;bottom:18%!important}
+ .controls button{font-size:clamp(12px,2.4vh,16px)!important}
+}
+</style>
+<style id="mobile-fullscreen-v45">
+#fsPrompt45{position:fixed;inset:0;z-index:250;background:rgba(4,8,17,.91);display:none;flex-direction:column;align-items:center;justify-content:center;gap:15px;padding:24px;text-align:center;color:#fff7e6;box-sizing:border-box;font-family:'Yu Mincho','Hiragino Mincho ProN',serif}
+#fsPrompt45.is-visible{display:flex}
+#fsPrompt45 strong{font-size:clamp(24px,4vw,36px);letter-spacing:.14em}
+#fsPrompt45 p{font-size:clamp(14px,2vw,19px);line-height:1.65;margin:0}
+#fsPrompt45 button{border-radius:10px;padding:14px 24px;min-height:46px;font-size:clamp(16px,2.5vw,21px);color:#fff6dc;border:1px solid #e6c68c;background:linear-gradient(120deg,#714029,#402923);cursor:pointer}
+#fsPrompt45 #fsSkip45{background:transparent;font-size:14px;border-color:#817c70}
+#fsTitle45{margin-top:10px;border:1px solid #ddc38a;background:rgba(15,20,35,.76);color:#fff3cd;border-radius:7px;padding:9px 14px;font-size:clamp(13px,1.2vw,17px)}
+#stage:fullscreen{inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important}
+</style>
+<style id="v46-landscape-bubbles">
+/* Landscape-only mode: restore the v23 speech bubble layout.
+   Portrait retains the fixed bottom message panel unchanged. */
+@media (orientation:landscape) {
+ #conversation,#conversation.leftSpeaker,#conversation.rightSpeaker,
+ body.mobile-landscape #conversation,body.mobile-landscape #conversation.leftSpeaker,
+ body.mobile-landscape #conversation.rightSpeaker {
+   position:absolute !important;
+   top:20% !important; bottom:auto !important; height:auto !important;
+   z-index:22 !important; display:none;
+   align-items:flex-start !important; padding:0 !important;
+   min-height:0 !important;
+ }
+ #conversation.rightSpeaker,body.mobile-landscape #conversation.rightSpeaker {
+   left:5% !important; right:31% !important; justify-content:flex-end !important;
+ }
+ #conversation.leftSpeaker,body.mobile-landscape #conversation.leftSpeaker {
+   left:31% !important; right:5% !important; justify-content:flex-start !important;
+ }
+ #conversation .bubble-wrap,body.mobile-landscape #conversation .bubble-wrap {
+   display:flex !important; flex-direction:column !important;
+   align-items:stretch !important; position:relative !important;
+   gap:8px !important; padding:26px 0 0 !important;
+   width:min(58vw,880px) !important; max-width:100% !important;
+ }
+ #conversation .speaker,#conversation.leftSpeaker .speaker,#conversation.rightSpeaker .speaker,
+ body.mobile-landscape #conversation .speaker {
+   position:absolute !important; top:0 !important; left:50% !important; right:auto !important;
+   transform:translate(-50%,-20%) !important;
+   margin:0 !important; padding:6px 20px !important;
+   display:block !important; width:max-content !important; max-width:90% !important;
+   white-space:nowrap !important; writing-mode:horizontal-tb !important;
+   border-radius:100px !important; border:1px solid rgba(255,255,255,.6) !important;
+   background:rgba(248,244,234,.96) !important; color:#3c3140 !important;
+   text-shadow:none !important; box-shadow:0 4px 15px rgba(0,0,0,.2) !important;
+   text-align:center !important; font:700 clamp(18px,1.7vw,24px) 'Yu Mincho','Hiragino Mincho ProN',serif !important;
+ }
+ #conversation .bubble,#conversation.leftSpeaker .bubble,#conversation.rightSpeaker .bubble,
+ body.mobile-landscape #conversation .bubble {
+   width:var(--dialog-width,610px) !important; max-width:100% !important;
+   height:auto !important; min-height:82px !important;
+   max-height:60dvh !important; overflow:auto !important; margin:0 !important;
+   padding:24px 28px !important; border-radius:25px !important;
+   background:rgba(248,244,234,.86) !important; color:#1a1d28 !important;
+   border:1px solid rgba(255,255,255,.55) !important;
+   box-shadow:0 14px 40px rgba(0,0,0,.32) !important;
+   font:700 clamp(26px,2.45vw,39px)/1.63 'Yu Mincho','Hiragino Mincho ProN',serif !important;
+   overflow-wrap:anywhere !important; white-space:pre-wrap !important;
+ }
+ #conversation .bubble::after,
+ #conversation.rightSpeaker .bubble::after,
+ #conversation.leftSpeaker .bubble::after {
+   content:"" !important; display:block !important;
+   position:absolute !important; top:auto !important; bottom:-23px !important;
+   height:30px !important; width:36px !important; border:none !important;
+   background:rgba(248,244,234,.86) !important;
+ }
+ #conversation.rightSpeaker .bubble::after {
+   right:8px !important; left:auto !important;
+   clip-path:polygon(0 0,100% 0,100% 100%) !important;
+ }
+ #conversation.leftSpeaker .bubble::after {
+   left:8px !important; right:auto !important;
+   clip-path:polygon(0 0,100% 0,0 100%) !important;
+ }
+}
+@media (orientation:landscape) and (max-height:700px) {
+ #conversation,#conversation.leftSpeaker,#conversation.rightSpeaker,
+ body.mobile-landscape #conversation,body.mobile-landscape #conversation.leftSpeaker,
+ body.mobile-landscape #conversation.rightSpeaker {top:20% !important;}
+ #conversation.rightSpeaker,body.mobile-landscape #conversation.rightSpeaker {
+   left:4% !important;right:31% !important;
+ }
+ #conversation.leftSpeaker,body.mobile-landscape #conversation.leftSpeaker {
+   left:31% !important;right:4% !important;
+ }
+ #conversation .bubble-wrap,body.mobile-landscape #conversation .bubble-wrap {
+   padding-top:22px !important;width:min(58vw,700px) !important;
+ }
+ #conversation .speaker,body.mobile-landscape #conversation .speaker{
+   font-size:clamp(13px,3.1vh,18px) !important; padding:4px 14px !important;
+ }
+ #conversation .bubble,body.mobile-landscape #conversation .bubble{
+   font-size:clamp(18px,4vh,27px) !important;line-height:1.45 !important;
+   min-height:55px !important;max-height:53dvh !important;
+   padding:12px 18px !important;border-radius:18px !important;
+ }
+ #conversation .bubble::after,#conversation.rightSpeaker .bubble::after,
+ #conversation.leftSpeaker .bubble::after {
+   width:26px !important;height:20px !important;bottom:-16px !important;
+ }
+}
+</style>
+
+<style id="v47-smartphone-landscape-bubble-tune">
+/* Applies only to a smartphone in landscape: leave PC and portrait unchanged. */
+@media (orientation:landscape) and (max-height:700px) and (pointer:coarse){
+  #conversation,
+  #conversation.leftSpeaker,
+  #conversation.rightSpeaker,
+  body.mobile-landscape #conversation,
+  body.mobile-landscape #conversation.leftSpeaker,
+  body.mobile-landscape #conversation.rightSpeaker {
+    top:50% !important;
+    bottom:auto !important;
+    transform:translateY(-50%) !important;
+    align-items:center !important;
+  }
+  #conversation.rightSpeaker,
+  body.mobile-landscape #conversation.rightSpeaker {
+    left:3.5% !important;
+    right:36% !important;
+    justify-content:flex-end !important;
+  }
+  #conversation.leftSpeaker,
+  body.mobile-landscape #conversation.leftSpeaker {
+    left:36% !important;
+    right:3.5% !important;
+    justify-content:flex-start !important;
+  }
+  #conversation .bubble-wrap,
+  body.mobile-landscape #conversation .bubble-wrap {
+    padding:27px 0 0 !important;
+    gap:0 !important;
+    width:min(54vw,700px) !important;
+  }
+  #conversation .speaker,
+  #conversation.leftSpeaker .speaker,
+  #conversation.rightSpeaker .speaker,
+  body.mobile-landscape #conversation .speaker {
+    top:0 !important;
+    left:18px !important;
+    right:auto !important;
+    transform:none !important;
+    background:transparent !important;
+    border:none !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    padding:0 !important;
+    color:#fff1cb !important;
+    text-shadow:0 2px 6px #000, 0 0 9px #000 !important;
+    text-align:left !important;
+    font-size:clamp(15px,3.4vh,20px) !important;
+    line-height:1.25 !important;
+    white-space:nowrap !important;
+  }
+  #conversation.leftSpeaker .speaker,
+  body.mobile-landscape #conversation.leftSpeaker .speaker {
+    left:18px !important;
+    right:auto !important;
+  }
+  #conversation .bubble,
+  body.mobile-landscape #conversation .bubble {
+    max-height:51dvh !important;
+  }
+}
+</style>
+
+<style id="v48-fixes">
+/* V23-like tails, restored after the fixed-window rules. Landscape only. */
+@media (orientation:landscape){
+ #conversation .bubble::after,#conversation.rightSpeaker .bubble::after,#conversation.leftSpeaker .bubble::after,
+ body.mobile-landscape #conversation .bubble::after {
+  content:"" !important; display:block !important; position:absolute !important;
+  top:auto !important; bottom:-19px !important; width:32px !important;height:25px !important;
+  border:0 !important;background:rgba(248,244,234,.86) !important;
+ }
+ #conversation.rightSpeaker .bubble::after,body.mobile-landscape #conversation.rightSpeaker .bubble::after{
+  right:6px !important;left:auto !important;clip-path:polygon(0 0,100% 0,100% 100%) !important;
+ }
+ #conversation.leftSpeaker .bubble::after,body.mobile-landscape #conversation.leftSpeaker .bubble::after{
+  left:6px !important;right:auto !important;clip-path:polygon(0 0,100% 0,0 100%) !important;
+ }
+ #conversation[data-speaker="雪姫"] .bubble-wrap{max-width:min(48vw,710px) !important}
+ #conversation[data-speaker="雪姫"].rightSpeaker{right:38% !important}
+ #conversation[data-speaker="雪姫"].leftSpeaker{left:38% !important}
+}
+@media (orientation:landscape) and (max-height:700px) and (pointer:coarse){
+ #conversation .bubble::after,#conversation.rightSpeaker .bubble::after,#conversation.leftSpeaker .bubble::after{
+  width:24px !important;height:18px !important;bottom:-13px !important;
+ }
+ #conversation[data-speaker="雪姫"] .bubble-wrap{max-width:46vw !important}
+ #conversation[data-speaker="雪姫"].rightSpeaker{right:39% !important}
+ #conversation[data-speaker="雪姫"].leftSpeaker{left:39% !important}
+}
+/* Original fantasy collectible card interface */
+#itemOverlay{z-index:28 !important}
+.item-shell.item-card{width:min(350px,72vw) !important;min-width:0 !important;max-height:min(80dvh,590px);aspect-ratio: .69;
+ display:flex;flex-direction:column;justify-content:initial;align-items:stretch;gap:7px;position:relative;box-sizing:border-box;
+ padding:17px;border:4px ridge #c19a58;border-radius:15px;
+ background:linear-gradient(145deg,#4a2b20,#121523 25%,#29223a 78%,#6b351c);
+ box-shadow:inset 0 0 0 2px #e3bd6b,0 20px 55px #000b,0 0 23px #b37c4980;
+ color:#fff0d4;font-family:'Yu Mincho','Hiragino Mincho ProN',serif;
+}
+.item-card .card-top{display:flex;align-items:center;justify-content:space-between;gap:7px;min-height:34px}
+.item-card .card-name{font-weight:800;font-size:clamp(20px,2vw,30px);line-height:1.18;letter-spacing:.045em}
+.item-card .card-gem{border:2px solid #d5ac65;border-radius:50%;padding:6px;color:#e6b7f9;background:#563568;flex-shrink:0}
+.item-card .card-stars{color:#f3c567;font-size:13px;letter-spacing:3px;text-align:right;white-space:nowrap}
+.item-card .card-art{flex:1;min-height:0;border:3px ridge #c7aa78;background:radial-gradient(circle,#553a58,#15111e 75%);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.item-card .card-art img{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 14px #0008)}
+.item-card .card-bottom{border:1px solid #99764d;background:rgba(9,10,21,.88);padding:9px 11px;min-height:25%;display:flex;flex-direction:column;gap:8px}
+.item-card .card-type{color:#e7b965;font:700 12px sans-serif;letter-spacing:.2em;border-bottom:1px solid #93754c;padding-bottom:5px}
+.item-card .card-description{font-size:clamp(13px,1.18vw,16px);font-weight:550;line-height:1.62;color:#f8f1e8}
+#cardViewer{position:fixed;inset:0;z-index:220;background:radial-gradient(circle,#253047,#050712 80%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px}
+#cardViewer[hidden]{display:none !important}
+.card-viewer-tools{z-index:1;display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.card-viewer-tools button{background:#182338;border:1px solid #bda16b;color:#fff3d8;padding:9px 15px;border-radius:9px;font-size:15px}
+#cardViewerBody{display:flex;justify-content:center;align-items:center;min-height:0;flex:1;width:100%}
+#cardViewerBody .item-card{width:min(350px,67vw) !important;max-height:min(78dvh,600px)}
+@media (max-height:560px){
+ .item-shell.item-card{height:min(82dvh,420px);width:auto !important;padding:10px;gap:3px}
+ .item-card .card-bottom{min-height:29%;padding:5px 8px;gap:3px}
+ .item-card .card-description{font-size:11px;line-height:1.35}
+ .item-card .card-name{font-size:19px}
+ .item-card .card-top{min-height:24px}
+ .item-card .card-stars{font-size:10px}
+ #cardViewerBody .item-card{height:min(75dvh,405px);width:auto !important}
+}
+</style>
+
+<style id="portrait-only-style">
+#portraitOnlyNotice{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:13px;box-sizing:border-box;padding:20px 24px;background:linear-gradient(145deg,#090e1b,#17233b);color:#f9f0dc;text-align:center;font-family:"Yu Mincho","Hiragino Mincho ProN",serif;overflow:auto}
+#portraitOnlyNotice.is-visible{display:flex!important}
+#portraitOnlyNotice .turn-icon{font-size:clamp(42px,8vh,76px);line-height:1.1;color:#e8c787}
+#portraitOnlyNotice h2{margin:0;font-size:clamp(22px,5vw,38px);letter-spacing:.16em}
+#portraitOnlyNotice p{margin:0;font-size:clamp(16px,3.2vw,22px);line-height:1.8;color:#ebdfcc}
+#portraitOnlyNotice .ornament{width:min(300px,70vw);height:1px;margin:8px 0;background:linear-gradient(90deg,transparent,#d9ad68,transparent)}
+@media (prefers-reduced-motion:no-preference){#portraitOnlyNotice .turn-icon{animation:slow-turn 2.3s ease-in-out infinite alternate}@keyframes slow-turn{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}}
+</style>
+
+<style id="v50-tuning">
+#chapterTitle{font-size:clamp(56px,7vw,116px) !important;line-height:1.26 !important;}
+#portrait{bottom:calc(0px + 11px) !important;}
+@media (orientation:portrait) and (max-width:900px){
+ #chapterTitle{font-size:clamp(43px,10.5vw,68px) !important;}
+ body.mobile-portrait #portrait{bottom:calc(7% + 11px) !important;}
+}
+@media (orientation:landscape) and (max-height:550px){#chapterTitle{font-size:clamp(34px,9vh,64px) !important}}
+</style>
+
+<style id="v52-full-weapon-cards">
+/* Use the finalized built-in frame for weapon cards to avoid card-within-card. */
+.item-card.full-card-media{
+  width:min(380px,74vw) !important;
+  max-height:min(84dvh,680px) !important;
+  aspect-ratio:auto !important;
+  padding:0 !important;
+  gap:0 !important;
+  border:none !important;
+  border-radius:18px !important;
+  background:none !important;
+  box-shadow:0 20px 55px rgba(0,0,0,.48) !important;
+  overflow:visible !important;
+}
+.item-card.full-card-media .card-top,
+.item-card.full-card-media .card-stars,
+.item-card.full-card-media .card-bottom,
+.item-card.full-card-media #itemFrame{display:none !important;}
+.item-card.full-card-media .card-art{
+  flex:none !important;
+  min-height:0 !important;
+  border:none !important;
+  background:none !important;
+  overflow:visible !important;
+  display:block !important;
+}
+.item-card.full-card-media .card-art img{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  max-height:min(84dvh,680px) !important;
+  object-fit:contain !important;
+  filter:drop-shadow(0 16px 28px rgba(0,0,0,.36)) !important;
+}
+#cardViewerBody .item-card.full-card-media{width:min(380px,72vw) !important;max-height:min(82dvh,680px) !important;}
+@media (orientation:portrait) and (max-width:900px){
+  .item-card.full-card-media{width:min(88vw,400px) !important;max-height:min(78dvh,620px) !important;}
+  .item-card.full-card-media .card-art img{max-height:min(78dvh,620px) !important;}
+}
+@media (max-height:560px){
+  .item-card.full-card-media{width:min(280px,60vw) !important;max-height:min(76dvh,440px) !important;}
+  .item-card.full-card-media .card-art img{max-height:min(76dvh,440px) !important;}
+  #cardViewerBody .item-card.full-card-media{width:min(280px,60vw) !important;max-height:min(72dvh,420px) !important;}
+}
+</style>
+
+<style id="v53-unified-card-placement">
+/* Shared dimensions for every item card in story and gallery. */
+#itemOverlay{position:absolute !important;inset:0 !important;display:none;align-items:center !important;justify-content:center !important;padding:10px !important;box-sizing:border-box !important;}
+#itemOverlay.show{display:flex !important;}
+#itemOverlay .item-shell.item-card,
+#itemOverlay .item-card.full-card-media,
+#cardViewerBody .item-card,
+#cardViewerBody .item-card.full-card-media{
+  --card-size:min(430px,88vw,calc(78dvh * 0.6667));
+  width:var(--card-size) !important;
+  min-width:0 !important;
+  max-width:none !important;
+  height:calc(var(--card-size) * 1.5) !important;
+  max-height:78dvh !important;
+  aspect-ratio:2 / 3 !important;
+  flex:0 0 auto !important;
+  align-self:center !important;
+  margin:auto !important;
+  box-sizing:border-box !important;
+}
+#itemOverlay .item-card.full-card-media,
+#cardViewerBody .item-card.full-card-media{display:flex !important;padding:0 !important;}
+#itemOverlay .item-card.full-card-media .card-art,
+#cardViewerBody .item-card.full-card-media .card-art{height:100% !important;width:100% !important;flex:1 !important;}
+#itemOverlay .item-card.full-card-media .card-art img,
+#cardViewerBody .item-card.full-card-media .card-art img{
+ height:100% !important;width:100% !important;max-height:100% !important;
+ object-fit:contain !important;object-position:center !important;
+}
+#cardViewerBody{display:flex !important;align-items:center !important;justify-content:center !important;min-height:0 !important;}
+@media (orientation:portrait) and (max-width:900px){
+ #itemOverlay .item-shell.item-card,#itemOverlay .item-card.full-card-media,
+ #cardViewerBody .item-card,#cardViewerBody .item-card.full-card-media{
+  --card-size:min(94vw,420px,calc(77dvh * 0.6667));
+  max-height:77dvh !important;
+ }
+}
+@media (max-height:560px){
+ #itemOverlay .item-shell.item-card,#itemOverlay .item-card.full-card-media,
+ #cardViewerBody .item-card,#cardViewerBody .item-card.full-card-media{
+  --card-size:min(80vw,320px,calc(73dvh * 0.6667));
+  max-height:73dvh !important;
+ }
+}
+</style>
+<style id="v54-card-final">
+/* Keep the card centered and sized by the same 2:3 bounding box in story and gallery. */
+#itemOverlay{position:absolute!important;inset:0!important;display:none;align-items:center!important;justify-content:center!important;padding:8px!important;box-sizing:border-box!important}
+#itemOverlay.show{display:flex!important}
+#itemOverlay .item-card,#cardViewerBody .item-card{
+  width:min(88vw,410px,calc(78dvh * 2 / 3))!important;
+  height:min(78dvh,615px,calc(88vw * 1.5))!important;
+  min-width:0!important;max-width:none!important;max-height:none!important;
+  aspect-ratio:2/3!important;margin:0 auto!important;flex:0 0 auto!important;
+  box-sizing:border-box!important;align-self:center!important;
+}
+#cardViewerBody{display:flex!important;align-items:center!important;justify-content:center!important;min-height:0!important;flex:1!important}
+#itemOverlay .item-card.full-card-media,#cardViewerBody .item-card.full-card-media{
+  display:block!important;padding:0!important;gap:0!important;border:0!important;
+  border-radius:12px!important;background:transparent!important;overflow:hidden!important;
+  box-shadow:0 18px 46px rgba(0,0,0,.45)!important;
+}
+#itemOverlay .item-card.full-card-media .card-top,#itemOverlay .item-card.full-card-media .card-stars,
+#itemOverlay .item-card.full-card-media .card-bottom,#itemOverlay .item-card.full-card-media #itemFrame,
+#cardViewerBody .item-card.full-card-media .card-top,#cardViewerBody .item-card.full-card-media .card-stars,
+#cardViewerBody .item-card.full-card-media .card-bottom,#cardViewerBody .item-card.full-card-media img[id="itemFrame"]{display:none!important}
+#itemOverlay .item-card.full-card-media .card-art,#cardViewerBody .item-card.full-card-media .card-art{
+  display:block!important;width:100%!important;height:100%!important;min-height:0!important;
+  border:0!important;padding:0!important;background:none!important;overflow:hidden!important;
+}
+#itemOverlay .item-card.full-card-media .card-art img,#cardViewerBody .item-card.full-card-media .card-art img{
+  display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  object-fit:fill!important;filter:none!important;
+}
+@media (orientation:portrait) and (max-width:900px){
+ #itemOverlay .item-card,#cardViewerBody .item-card{
+ width:min(92vw,430px,calc(79dvh * 2 / 3))!important;
+ height:min(79dvh,645px,calc(92vw * 1.5))!important}
+}
+@media (max-height:560px){
+ #itemOverlay .item-card,#cardViewerBody .item-card{
+ width:min(68vw,340px,calc(72dvh * 2 / 3))!important;
+ height:min(72dvh,510px,calc(68vw * 1.5))!important}
+}
+</style>
+<style id="v55-ally-compact">
+/* Remove inherited two-row height from the party/ally HUD. */
+.party-hud,.hud-block.ally-block,.ally-block.icon-only{
+  min-height:0 !important;
+  height:auto !important;
+  max-height:none !important;
+}
+.party-hud{align-items:flex-start !important;}
+.ally-block.icon-only{
+  display:flex !important; flex-direction:row !important;
+  align-items:center !important; justify-content:center !important;
+  gap:0 !important; padding:5px 7px !important;
+}
+.ally-block.icon-only .hud-title{display:none !important;}
+.ally-block.icon-only .ally-list{
+  display:flex !important; flex-wrap:nowrap !important;
+  align-items:center !important; gap:5px !important;
+  margin:0 !important; padding:0 !important;
+}
+.ally-block.icon-only .ally-chip{flex:0 0 auto !important; padding:0 !important; margin:0 !important;}
+.ally-block.icon-only .ally-chip img{display:block !important; width:30px !important; height:30px !important;}
+@media (max-width:900px){
+  body.mobile-portrait .party-hud,body.mobile-portrait .hud-block.ally-block,
+  body.mobile-landscape .party-hud,body.mobile-landscape .hud-block.ally-block{
+    min-height:0 !important; height:auto !important;
+  }
+  body.mobile-portrait .ally-block.icon-only,body.mobile-landscape .ally-block.icon-only{
+    padding:4px 6px !important; gap:0 !important;
+  }
+  body.mobile-portrait .ally-block.icon-only .ally-chip img{width:24px !important;height:24px !important;}
+  body.mobile-landscape .ally-block.icon-only .ally-chip img{width:22px !important;height:22px !important;}
+}
+#cardViewerBody{touch-action:pan-y;}
+</style>
+
+<style id="v56-roulette-card-layout">
+/* Portrait, name and frame now use three predictable, non-overlapping regions. */
+.character-codex.overview-mode .roulette-card{
+  box-sizing:border-box !important;
+  width:clamp(172px,23vw,315px) !important;
+  height:auto !important;
+  max-height:none !important;
+  aspect-ratio: 0.83 !important;
+  padding:8px 8px 0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:space-between !important;
+  overflow:hidden !important;
+  border-radius:15px !important;
+}
+.character-codex.overview-mode .roulette-card img{
+  display:block !important;
+  flex:1 1 auto !important;
+  width:100% !important;
+  height:calc(100% - 43px) !important;
+  min-height:0 !important;
+  max-height:calc(100% - 43px) !important;
+  object-fit:contain !important;
+  object-position:center top !important;
+  transform:none !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+.character-codex.overview-mode .roulette-card.chosen img{
+  transform:none !important;
+}
+.character-codex.overview-mode .roulette-name{
+  box-sizing:border-box !important;
+  flex:0 0 43px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  padding:0 4px !important;
+  margin:0 !important;
+  font-size:clamp(17px,1.6vw,23px) !important;
+  line-height:1.2 !important;
+  white-space:nowrap !important;
+  background:linear-gradient(180deg,rgba(8,12,19,.5),rgba(8,12,19,.94));
+  z-index:2 !important;
+}
+@media (orientation:portrait) and (max-width:900px){
+  .character-codex.overview-mode .roulette-card{
+    width:clamp(164px,48vw,270px) !important;
+    aspect-ratio:.83 !important;
+    padding:6px 6px 0 !important;
+  }
+  .character-codex.overview-mode .roulette-card img{
+    height:calc(100% - 39px) !important;
+    max-height:calc(100% - 39px) !important;
+  }
+  .character-codex.overview-mode .roulette-name{
+    flex-basis:39px !important;
+    font-size:clamp(17px,4.2vw,22px) !important;
+  }
+}
+@media (orientation:landscape) and (max-height:550px){
+  .character-codex.overview-mode .roulette-card{
+    width:min(25vw,178px) !important;
+    aspect-ratio:.86 !important;
+  }
+}
+</style>
+
+<style id="v57-item-roulette">
+/* Tiger/Flying Swallow-inspired gold and obsidian ornament for every card. */
+.item-card:not(.full-card-media){
+ background:linear-gradient(135deg,#cc9e40 0%,#fff1a8 2%,#3c2417 4%,#080910 8%,#090b12 92%,#5c3216 96%,#ffdda0 98%,#aa641e 100%)!important;
+ border:5px ridge #e6b868!important;outline:1px solid #8b5423!important;
+ box-shadow:inset 0 0 0 2px #e5a83a,0 18px 35px #000b!important;
+ color:#fff1d8!important;padding:12px!important;gap:5px!important;
+}
+.item-card:not(.full-card-media) .card-top{border-bottom:2px solid #d9aa54;padding:3px 5px 7px;min-height:36px!important}
+.item-card:not(.full-card-media) .card-name{color:#fff0c3;font-weight:800;text-shadow:0 2px 6px #000,0 0 8px #ab6b35}
+.item-card:not(.full-card-media) .card-stars{color:#ffda70;text-align:center;font-size:15px;letter-spacing:3px}
+.item-card:not(.full-card-media) .card-art{border:3px ridge #d5a44e!important;background:radial-gradient(ellipse at center,#302036,#080c18 80%);border-radius:3px}
+.item-card:not(.full-card-media) .card-art img{object-fit:contain!important;padding:2px;filter:drop-shadow(0 6px 8px #0008)}
+.item-card:not(.full-card-media) .card-bottom{background:linear-gradient(#101019,#05060e)!important;border:1px solid #c3984d!important;min-height:24%;padding:7px 9px;gap:6px}
+.item-card:not(.full-card-media) .card-type{color:#f2c465;border-bottom:1px solid #b78b43}
+#cardViewer{padding:0!important;overflow:hidden!important}
+#cardViewer .card-viewer-tools{position:absolute;top:12px;left:10px;right:10px;z-index:5;margin:0!important}
+#cardViewerBody{width:100%!important;height:100%!important;position:absolute!important;inset:0!important;display:block!important;overflow:hidden!important;perspective:1000px}
+.item-roulette-heading{position:absolute;top:65px;left:0;right:0;text-align:center;font:700 clamp(14px,2.5vw,20px) 'Yu Mincho',serif;letter-spacing:.16em;color:#f9dfa4}
+.item-roulette-stage{position:absolute;top:52%;left:0;width:100%;height:65%;transform:translateY(-50%);touch-action:pan-y;perspective:1100px}
+#cardViewerBody .item-roulette-tile{position:absolute!important;left:50%;top:50%;margin:0!important;padding:0!important;width:min(41vw,245px)!important;height:min(60dvh,368px)!important;aspect-ratio:2/3!important;max-height:none!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;background:#0c101a;border:3px solid #8d7044;border-radius:13px;box-shadow:0 8px 28px #000b;transition:transform .36s ease,opacity .36s ease,filter .36s ease,box-shadow .36s ease;cursor:pointer}
+#cardViewerBody .item-roulette-tile.active{border-color:#ffdb81;box-shadow:0 0 0 2px #ffdd94,0 0 26px #f4bd68a8,0 18px 43px #000b;filter:brightness(1.06)}
+.item-roulette-tile .item-roulette-face{width:100%!important;height:100%!important;display:block!important;min-width:0!important;min-height:0!important}
+.item-roulette-tile img{width:100%;height:100%;object-fit:contain;display:block}
+.item-roulette-tile .item-roulette-composed{position:relative;width:100%;height:100%;padding:8px;box-sizing:border-box;display:flex;flex-direction:column;gap:3px;border:5px ridge #d7a54d;background:linear-gradient(140deg,#a56d24,#07080f 7%,#0a0c13 91%,#bc842c);color:#fff1d8;font-family:'Yu Mincho',serif}
+.item-roulette-composed .ic-title{height:12%;display:flex;align-items:center;justify-content:space-between;color:#ffe6a2;font-size:clamp(13px,2.2vw,20px);font-weight:800;border-bottom:1px solid #c99b4b}
+.item-roulette-composed .ic-type{font-size:.55em;border:1px solid #b78d48;border-radius:4px;padding:2px 5px}
+.item-roulette-composed .ic-stars{height:5%;color:#efc161;letter-spacing:2px;text-align:center;font-size:12px}
+.item-roulette-composed .ic-art{height:56%;min-height:0;border:2px ridge #d2a359;background:radial-gradient(#39304a,#070b18);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.item-roulette-composed .ic-art img{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain}
+.item-roulette-composed .ic-desc{height:26%;overflow:hidden;border-top:1px solid #d1a057;padding:6px 3px;color:#f9eacc;font-size:clamp(9px,1.45vw,13px);line-height:1.55;text-align:left}
+.item-roulette-actions{position:absolute;bottom:8%;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:17px;z-index:3}
+.item-roulette-actions button{background:#162039;border:1px solid #d1a866;color:#fff3cf;border-radius:9px;font-size:16px;padding:8px 15px}
+.item-roulette-actions button.center{min-width:130px}
+.item-roulette-count{position:absolute;bottom:2%;left:0;right:0;text-align:center;color:#f1d5a0;font-size:13px;letter-spacing:.15em}
+#cardViewer .card-viewer-tools #cardPrev,#cardViewer .card-viewer-tools #cardNext,#cardViewer .card-viewer-tools #cardCounter{display:none!important}
+/* Full view uses one consistent size with no nested frames. */
+#cardViewerBody .item-roulette-detail{position:absolute;inset:8% 0 0;display:flex;justify-content:center;align-items:center;z-index:7;background:rgba(4,7,15,.9)}
+.item-roulette-detail img{height:min(79dvh,620px);width:auto;max-width:90vw;object-fit:contain}
+.item-roulette-detail .item-roulette-composed{height:min(79dvh,620px);width:min(52.66dvh,410px);max-width:90vw}
+.item-roulette-detail .close{position:absolute;right:12px;top:8px;background:#1b2840;border:1px solid #d1a866;color:#fff3d8;border-radius:8px;padding:8px 14px}
+@media(max-width:700px){
+ #cardViewerBody .item-roulette-tile{width:min(55vw,226px)!important;height:min(52dvh,340px)!important}
+ .item-roulette-stage{top:49%;height:66%}
+ .item-roulette-heading{top:61px;font-size:13px}
+ .item-roulette-actions{bottom:8%;gap:9px}
+ .item-roulette-actions button{padding:8px 12px;font-size:13px}
+ .item-roulette-composed .ic-title{font-size:13px}.item-roulette-composed .ic-desc{font-size:10px}
+ .item-roulette-detail .item-roulette-composed{width:min(90vw,calc(77dvh * 2 / 3));height:min(77dvh,calc(90vw * 1.5))}
+}
+</style>
+<style id="v62-orientation-guard">#portraitOnlyNotice.is-visible{position:fixed!important;inset:0!important;z-index:2147483000!important;display:flex!important;}</style>
+<style id="v64-narrative-serif-150">
+/* The narrative alone defaults to twice its previous portrait size.
+   Existing A-/A+ adjustment remains available. Dialogue and PC unaffected. */
+@media (orientation:portrait) and (max-width:900px){
+ body.mobile-portrait #narrative,
+ body #narrative{
+   font-family:'Yu Mincho','Hiragino Mincho ProN','Hiragino Mincho Pro','Noto Serif JP',serif !important;
+   font-weight:600 !important;
+   font-size:calc(clamp(24px,6.1vw,31px) * 1.5 * var(--reader-font-scale,1)) !important;
+   line-height:1.42 !important;
+ }
+ body #narrative .line,body.mobile-portrait #narrative .line{
+   line-height:1.42 !important;
+   min-height:1.42em !important;
+   margin-bottom:.20em !important;
+ }
+ /* Individual longer sentences must remain accessible instead of being clipped. */
+ body #narrativeText,body.mobile-portrait #narrativeText{
+   overflow-y:auto !important;
+   overscroll-behavior:contain;
+   scrollbar-width:thin;
+   touch-action:pan-y;
+ }
+}
+</style>
+
+<style id="v65-dialogue-font-150">
+/* Portrait smartphone: enlarge dialogue 1.5x, preserving narrative and existing A+/A- scale. */
+@media (orientation:portrait) and (max-width:900px){
+ body #conversation .bubble,
+ body.mobile-portrait #conversation .bubble,
+ body #conversation.rightSpeaker .bubble,
+ body #conversation.leftSpeaker .bubble{
+  font-family:'Yu Mincho','Hiragino Mincho ProN','Hiragino Mincho Pro','Noto Serif JP',serif !important;
+  font-size:calc(clamp(24px,6.2vw,31px) * 1.5 * var(--reader-font-scale,1)) !important;
+  line-height:1.36 !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+ }
+}
+</style>
+
+<style id="v66-mobile-portrait-150">
+/* Main story portraits only. Keep the existing bottom anchor and lift it 3vh.
+   This overrides the accumulated older portrait sizing declarations. */
+@media (orientation:portrait) and (max-width:900px){
+ body #stage #portrait, body #stage #portrait.left,body #stage #portrait.right,
+ body.mobile-portrait #stage #portrait,body.mobile-portrait #stage #portrait.left,body.mobile-portrait #stage #portrait.right{
+  position:absolute !important;
+  left:50% !important;right:auto !important;
+  width:min(112vw,670px) !important;
+  height:70% !important;
+  bottom:21% !important;
+  transform:translateX(-50%) scale(1.5) !important;
+  transform-origin:center bottom !important;
+  object-fit:contain !important;object-position:center bottom !important;
+  z-index:7 !important;pointer-events:none !important;
+ }
+}
+</style>
+
+<style id="v67-title-carousel">
+.title-screen .title-menu{
+ position:relative;display:block;width:min(88vw,630px);height:clamp(160px,27dvh,260px);
+ margin-top:clamp(12px,3vh,32px);perspective:850px;touch-action:pan-y;
+ overflow:visible;
+}
+.title-screen .title-menu>button{
+ position:absolute;left:50%;top:48%;width:min(62vw,340px);height:clamp(54px,9vh,77px);
+ min-height:0;display:flex;align-items:center;justify-content:center;
+ border-radius:12px;font-size:clamp(18px,2.5vw,29px);font-weight:700;
+ transition:transform .32s ease,opacity .32s ease,filter .32s ease,box-shadow .32s ease;
+ transform-origin:center center;will-change:transform,opacity;white-space:nowrap;
+ touch-action:pan-y;
+}
+.title-screen .title-menu>button.roulette-selected{
+ border:2px solid #fbe2a3;background:linear-gradient(100deg,#35251ad9,#77512cd9,#35251ad9);
+ box-shadow:0 0 0 2px #b9975d8c,0 0 26px #ffc56885,0 12px 26px #0008;
+ text-shadow:0 0 12px #f8d99d;font-size:clamp(22px,3.2vw,36px);
+}
+.title-carousel-tools{display:flex;align-items:center;justify-content:center;gap:16px;position:relative;z-index:3;margin-top:8px}
+.title-carousel-tools>button{border:1px solid #e7c98999;border-radius:50%;width:44px;height:44px;background:#101a2edc;color:#f6dfaa;font-size:22px}
+.title-carousel-tools>.title-carousel-confirm{border-radius:10px;width:min(45vw,190px);font-size:17px;background:linear-gradient(90deg,#402d1e,#8a5c2c,#402d1e)}
+.title-carousel-help{text-align:center;font:12px 'Yu Mincho',serif;letter-spacing:.12em;color:#f4e5c7b8;padding-top:5px}
+#enableTitleMusic,.title-note{display:none!important}
+@media (orientation:portrait) and (max-width:700px){
+ .title-screen .title-menu{height:clamp(155px,25dvh,215px);width:92vw;margin-top:12px}
+ .title-screen .title-menu>button{width:min(63vw,280px);height:58px;font-size:18px}
+ .title-screen .title-menu>button.roulette-selected{font-size:23px}
+ .title-carousel-tools>button{width:43px;height:43px}
+}
+@media (orientation:landscape) and (max-height:550px){
+ .title-screen .title-menu{height:clamp(87px,22dvh,150px);margin-top:4px}
+ .title-screen .title-menu>button{height:36px;width:min(40vw,250px);font-size:16px}
+ .title-screen .title-menu>button.roulette-selected{font-size:19px}
+ .title-carousel-tools{margin-top:0;gap:10px}
+ .title-carousel-tools>button{height:30px;width:36px;font-size:16px}
+ .title-carousel-tools>.title-carousel-confirm{width:130px;font-size:13px}
+ .title-carousel-help{display:none}
+}
+</style>
+
+<style id="v68-hud-and-chapter">
+/* Chapter title 1.5x, let long titles wrap rather than crop. */
+#chapterCard #chapterTitle{
+  font-size:clamp(84px,10.5vw,174px) !important;
+  line-height:1.17 !important;
+  max-width:95vw !important;
+  overflow-wrap:anywhere;
+  margin-inline:auto;
+}
+@media (orientation:portrait) and (max-width:900px){
+  #chapterCard #chapterTitle{
+    font-size:clamp(64.5px,15.75vw,102px) !important;
+    line-height:1.2 !important;
+  }
+}
+@media (orientation:landscape) and (max-height:550px){
+  #chapterCard #chapterTitle{font-size:clamp(51px,13.5vh,96px) !important;}
+}
+/* The ally HUD now has a single compact row of doubled-size portraits.
+   Content determines frame height, avoiding the former empty second row. */
+#partyHud.party-hud{
+  display:flex !important;
+  width:max-content !important;
+  min-height:0 !important;height:auto !important;
+  max-height:none !important;
+  flex-wrap:nowrap !important;
+  align-items:flex-start !important;
+  margin-left:auto !important;
+}
+#partyHud[hidden]{display:none !important;}
+#partyHud .ally-block.icon-only{
+  box-sizing:border-box !important;
+  display:flex !important;flex-flow:row nowrap !important;
+  align-items:center !important;justify-content:center !important;
+  width:max-content !important;min-width:0 !important;
+  min-height:0 !important;height:auto !important;max-height:none !important;
+  padding:6px 8px !important;gap:0 !important;
+}
+#partyHud .ally-block .hud-title{display:none !important;}
+#partyHud .ally-list{
+  display:flex !important;flex-flow:row nowrap !important;
+  align-items:center !important;gap:7px !important;
+  width:max-content !important;min-height:0 !important;
+}
+#partyHud .ally-chip{
+  display:flex !important;flex:0 0 auto !important;
+  padding:0 !important;margin:0 !important;
+  border:0 !important;background:none !important;
+}
+#partyHud .ally-chip img{
+  display:block !important;width:60px !important;height:60px !important;
+  border-radius:50% !important;object-fit:cover !important;
+}
+@media (max-width:900px){
+  body.mobile-portrait #partyHud,body.mobile-landscape #partyHud{
+    width:max-content !important;max-width:none !important;
+    overflow:visible !important;
+  }
+  body.mobile-portrait #partyHud .ally-block.icon-only,
+  body.mobile-landscape #partyHud .ally-block.icon-only{
+    min-height:0 !important;height:auto !important;
+    padding:5px 6px !important;
+  }
+  body.mobile-portrait #partyHud .ally-chip img{width:48px !important;height:48px !important;}
+  body.mobile-landscape #partyHud .ally-chip img{width:44px !important;height:44px !important;}
+  body.mobile-portrait #partyHud .ally-list,
+  body.mobile-landscape #partyHud .ally-list{gap:5px !important;}
+}
+@media (max-width:400px){
+  body.mobile-portrait #partyHud .ally-chip img{width:44px !important;height:44px !important;}
+}
+</style>
+
+<style id="v69-line-break-fix">
+#chapterTitle{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:.16em!important;width:100%!important;white-space:normal!important;overflow-wrap:normal!important;word-break:keep-all!important;text-align:center!important}
+#chapterTitle .chapter-number{display:block;white-space:nowrap!important;font-size:.69em!important;line-height:1.25!important;letter-spacing:.16em}
+#chapterTitle .chapter-name{display:block;white-space:nowrap!important;font-size:1em!important;line-height:1.22!important;letter-spacing:.08em}
+#conversation .bubble{word-break:normal!important;overflow-wrap:break-word!important;line-break:strict!important;white-space:pre-wrap!important}
+@media (orientation:portrait) and (max-width:900px){
+ #conversation .bubble,body.mobile-portrait #conversation .bubble{overflow-wrap:anywhere!important;word-break:normal!important;line-break:strict!important;max-height:calc(38dvh - 26px)!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+ #chapterTitle .chapter-number{font-size:.66em!important}
+ #chapterTitle .chapter-name{font-size:.95em!important;max-width:92vw!important}
+}
+/* Portrait-only on real touchscreen phones. No dialog or scene interaction when sideways. */
+#portraitOnlyNotice.is-visible{display:flex!important;position:fixed!important;inset:0!important;z-index:2147483647!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+</style>
+
+<style id="test-play-mobile-only">
+#testPlayEnd[hidden]{display:none!important}
+#testPlayEnd{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:30px 7vw;background:linear-gradient(135deg,#080c17,#1d1920 60%,#0c1322);font-family:'Yu Mincho','Hiragino Mincho ProN',serif;color:#ffefd6}
+#testPlayEnd .end-head{font-size:clamp(30px,9vw,53px);font-weight:800;letter-spacing:.16em}
+#testPlayEnd .end-rule{width:62%;height:1px;background:linear-gradient(90deg,transparent,#d5ac6c,transparent)}
+#testPlayEnd h2{font-size:clamp(22px,6vw,33px);margin:4px 0 0;line-height:1.5}
+#testPlayEnd p{font-size:clamp(15px,4vw,20px);line-height:1.8;margin:0;color:#e9d8bf}
+#testPlayEnd button{padding:12px 25px;border:1px solid #e6b971;border-radius:9px;background:#312638;color:#fff2dc;font-size:18px;margin-top:8px}
+#smartphoneOnlyWarning{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;text-align:center;flex-direction:column;padding:32px;background:#0c1422;color:#f5e8d2;font:600 21px/1.8 'Yu Mincho',serif}
+#smartphoneOnlyWarning strong{font-size:30px;color:#f3d39f}
+@media (orientation:landscape) and (pointer:coarse){#smartphoneOnlyWarning{display:flex!important}}
+@media (pointer:fine) and (min-width:950px){#smartphoneOnlyWarning{display:flex!important}}
+</style>
+</head><body><div id="smartphoneOnlyWarning"><strong>暁ノ刃</strong><span>スマホの縦画面でプレイしてください</span></div><div id="portraitOnlyNotice" role="status" aria-live="polite" aria-hidden="true"><div class="turn-icon" aria-hidden="true">↻</div><h2>縦画面専用</h2><div class="ornament"></div><p>『暁ノ刃』はスマートフォンの<br>縦画面でお楽しみください。</p><p>端末を縦向きに戻すと、<br>続きからプレイできます。</p></div><div id="titleScreen" class="title-screen"><div class="title-shade"></div><div class="title-content"><img class="title-logo" src="assets/002_ea8d61170.png" alt="暁ノ刃"><nav class="title-menu"><button id="startStory">スタート</button><button id="resumeStory">つづきから</button><button id="galleryOpen">ギャラリー</button><button type="button" id="itemGalleryOpen">アイテム図鑑</button><button id="settingsOpen">設定</button></nav></div></div><div id="menuDialog" class="menu-dialog" hidden><div class="dialog-box"><h2 id="dialogTitle"></h2><div id="dialogContent"></div><button id="dialogClose">戻る</button></div></div><div id="decisionFlash"></div><section id="characterCodex" class="character-codex" hidden><img id="codexFigure" class="codex-figure" alt=""><div class="codex-ui"><div class="codex-header"><div class="codex-headcopy"><small>CHARACTER FILE</small><h2>人物紹介</h2></div><button id="codexClose" type="button">← タイトルへ戻る</button></div><div class="codex-layout"><nav id="codexNav" class="codex-nav" aria-label="人物一覧"></nav><div id="codexOverview"></div><main class="codex-main"><button id="codexBackList" type="button">← 一覧へ戻る</button><div class="codex-role" id="codexRole"></div><h3 class="codex-name" id="codexName"></h3><div class="codex-ruby" id="codexRuby"></div><div class="codex-catch" id="codexCatch"></div><div class="codex-points" id="codexPoints"></div><div class="codex-desc" id="codexDesc"></div></main></div><div class="codex-help">選択すると演出付きで人物紹介が切り替わります。スマホは縦横どちらでも表示に対応。</div></div></section><button type="button" id="enableTitleMusic" hidden>♪ 音楽を再生</button><audio id="music" preload="none" loop playsinline></audio><section id="stage"><div id="testPlayEnd" role="dialog" aria-modal="true" aria-label="体験版終了" hidden><div class="end-head">暁ノ刃</div><div class="end-rule"></div><h2>テストプレイはここまで</h2><p>第一章「伊賀越え」までお楽しみいただき、ありがとうございました。</p><p>物語は、第二章「魔王再臨」へ続きます。</p><button id="returnTitleFromEnd" type="button">タイトルへ戻る</button></div><div id="sceneBgA" class="scene-bg"></div><div id="sceneBgB" class="scene-bg"></div><div id="sceneTransitionFx"></div><header class="top"><div class="top-brand"><img class="game-corner-logo" src="assets/002_ea8d61170.png" alt="暁ノ刃"><div class="top-labels"><span class="tags">スマホ縦横自動対応版</span><span id="chapterBadge" class="chapter-badge">序章</span></div></div><div id="partyHud" class="party-hud" hidden><div class="hud-block ally-block icon-only"><div class="hud-title">同行者</div><div class="ally-list"><div class="ally-chip"><img id="allyIeyasu" alt="家康"></div><div class="ally-chip"><img id="allyAyame" alt="あやめ"></div><div class="ally-chip"><img id="allyOfuu" alt="おふう"></div></div></div></div></header><img id="portrait" class="hide right" alt="character portrait"><div id="narrative"><div id="narrativeText"></div></div><div id="conversation" class="rightSpeaker"><div class="bubble-wrap"><div class="speaker" id="speaker"></div><div class="bubble" id="bubble"></div></div></div><div id="itemOverlay" aria-hidden="true"><div class="item-shell item-card"><div class="card-top"><div id="itemName" class="card-name"></div><span class="card-gem">✦</span></div><div class="card-stars">✦ ✦ ✦ ✦ ✦</div><div class="card-art"><img id="itemImage" alt="重要アイテムの画像"></div><div class="card-bottom"><div class="card-type">重要アイテム</div><div id="itemDesc" class="card-description"></div></div><img id="itemFrame" style="display:none" alt=""></div></div><div id="chapterCurtain" aria-hidden="true"></div><div id="chapterCard"><div id="chapterSub">AKATSUKI NO YAIBA</div><div id="chapterTitle"></div><div id="chapterLine"></div></div><footer class="controls"><button id="prev">◀ 戻る</button><button id="next">次へ ▶</button><span class="count" id="count"></span><div class="font-control" aria-label="文字サイズ"><button type="button" id="fontSmaller" aria-label="文字を小さく">A−</button><span id="fontSizeLabel">100%</span><button type="button" id="fontLarger" aria-label="文字を大きく">A＋</button></div><span class="grow"></span><span class="hint">クリック / Enter / → で進行 / 表示中は全文表示</span><button id="restart">冒頭へ</button></footer></section><script>
+const rawEntries=[{"t":"h","text":"序章　本能寺","id":"h0003"},{"t":"n","text":"天正十年六月二日――京。本能寺は炎に包まれていた。焼け落ちる梁が轟音を立て、夜空へ無数の火の粉を撒き散らす。燃え盛る廊下の向こうには、金色の狐面をつけた明智光秀が刀を手に立っていた。","id":"n0005"},{"t":"n","text":"信長は脇腹の傷を押さえ、ゆっくりと刀を構える。面の奥にある目には怒りも迷いもなく、ただ異様な静けさだけが宿っていた。","id":"n0007"},{"t":"s","who":"信長","text":"「……光秀め」","id":"s0009"},{"t":"n","text":"返事はない。次の瞬間には間合いを詰め、鋭い刃を振り下ろしてくる。肩を斬られてなお怯まず迫るその動きは、信長の知る男のものではなかった。","id":"n0011"},{"t":"s","who":"信長","text":"「……ほう。光秀、貴様――何をした」","id":"s0013"},{"t":"n","text":"僅かな驚きを滲ませながらも、信長は刃を押し返す。そこへ横合いから一閃が走り、左馬之助が間髪を入れず斬り込んだ。受け流された刃が火花を散らす。信長は返す刀で追撃を阻み、その胸元へ蹴りを叩き込んだ。吹き飛ばされた男を追おうとした瞬間、足元へ淡い白の紋様が広がる。銀白の髪を揺らす雪姫が印を結び、霧のような白い鎖を四肢へ絡ませていた。","id":"n0015"},{"t":"s","who":"雪姫","text":"「長くは……持たない！」","id":"s0017"},{"t":"n","text":"信長が力を込めるたび、拘束が一本ずつ砕けていく。それでも動きが鈍った一瞬を逃さず、左馬之助は刀を支えに立ち上がった。","id":"n0019"},{"t":"s","who":"左馬之助","text":"「光秀様――今です！」","id":"s0021"},{"t":"n","text":"二人の刃が左右から迫る。信長は最後の白い鎖を力任せに引き千切り、眼前の金色の狐面を睨み据えた。","id":"n0023"},{"t":"s","who":"信長","text":"「たわけ。貴様ごときに、儂が討てるか」","id":"s0025"},{"t":"n","text":"直後、左馬之助の刃が脇腹を裂く。その僅かな隙へ光秀が踏み込み、渾身の一撃を深く叩き込んだ。信長の身体が揺れた。それでも刀を離さず、膝をついたまま金色の狐面を見上げる。","id":"n0027"},{"t":"s","who":"信長","text":"「……是非に及ばず」","id":"s0029"},{"t":"n","text":"頭上で焼けた梁が崩れ、炎がその姿を呑み込んだ。戦いが終わると、光秀もその場へ膝をついた。金色の狐面の隙間から血が流れ、肩で息をする姿には、先ほどまでの異様な力など残っていない。左馬之助は駆け寄り、顔へ張りついた面を強引に引き剥がした。途端に全身から力が抜け、崩れ落ちた主の身体を両腕で受け止める。","id":"n0031"},{"t":"s","who":"光秀","text":"「……左馬之助。儂は……何を……」","id":"s0033"},{"t":"n","text":"虚ろな瞳には、先ほどまでの出来事を理解している様子がなかった。駆け寄った兵へ身体を預けると、左馬之助は手元に残った金色の狐面を一度だけ見つめ、そのまま懐へ収めた。その時、少し離れた場所で黒い器が微かに震える。","id":"n0035"},{"t":"s","who":"雪姫","text":"「……来る」","id":"s0037"},{"t":"n","text":"雪姫が印を結ぶと、燃え盛る堂から黒い靄が立ち昇った。煙とは違うそれは風に逆らい、渦を巻きながら器へ吸い込まれていく。最後の一筋が消えると、辺りを満たしていた禍々しい気配も静まった。雪姫は大きく息を吐き、黒い器を抱き上げる。","id":"n0039"},{"t":"s","who":"雪姫","text":"「伊賀へ運ぶわ。信長公の魂を、二度と現世へ戻れぬよう封じる」","id":"s0041"},{"t":"n","text":"左馬之助は兵に運ばれていく主を一度だけ見送り、静かに手を差し出した。","id":"n0043"},{"t":"s","who":"左馬之助","text":"「伊賀までの道中は、俺が守る」","id":"s0045"},{"t":"n","text":"雪姫は僅かに迷った末、その言葉を信じて器を預ける。二人は燃え続ける本能寺を背に、夜の京を離れていった。同じ頃――堺。","id":"n0047"},{"t":"s","who":"使者","text":"「申し上げます！織田信長公――お討死にございます！」","id":"s0049"},{"t":"n","text":"使者の報せに、室内の空気が凍りついた。徳川家康はしばらく黙っていたが、やがて傍らに控える男へ視線を向ける。服部半蔵正成。右目を黒い眼帯で覆い、腰には使い慣れた虎鉄と、黒鞘に収められたもう一振りを差していた。半蔵はすぐに帰路を進言した。ここも長くは安全ではない――その言葉に、家康は静かに頷く。","id":"n0051"},{"t":"s","who":"家康","text":"「ならば任せる。伊賀を越えよう」","id":"s0053"},{"t":"n","text":"部屋の隅では、花魁のおふうも扇を閉じて立ち上がった。半蔵は何も言わず、戸口の向こうへ視線を向ける。すでに外では、夜明け前の風が強くなっていた。こうして――徳川家康の伊賀越えが始まった。","id":"n0055"},{"t":"h","text":"第一章　伊賀越え","id":"h0057"},{"t":"n","text":"夜が白み始めるより早く、一行は堺を発った。家康を中心に、前を半蔵、後ろをあやめが固める。おふうも旅支度を整え、一行に加わっていた。山へ入るにつれ、人影は消えていく。湿った土を踏む音と木々のざわめきだけが続く中、先頭を歩く半蔵が不意に足を止めた。","id":"n0059"},{"t":"s","who":"半蔵","text":"「……いるな」","id":"s0061"},{"t":"n","text":"直後、家康へ一本の矢が飛んだ。虎鉄が鞘走りの勢いそのままに弾き落とし、ほぼ同時にあやめも背負っていた得物へ手を伸ばす。現れたのは、人の胴ほどもある巨大な手裏剣――飛燕。四方へ伸びた刃が朝露を弾き、低い唸りを上げた。","id":"n0063"},{"t":"s","who":"あやめ","text":"「来るよ」","id":"s0065"},{"t":"n","text":"左右の茂みから十を超える男たちが飛び出す。半蔵は家康へ近づく者を正確に退け、反対側では飛燕が迫る敵をまとめて弾き飛ばした。家康自身も刀を抜き、前へ出ようとするあやめへ短く声を掛ける。","id":"n0067"},{"t":"s","who":"家康","text":"「無茶はするなよ」","id":"s0069"},{"t":"n","text":"迫った刃を受け流し、そのまま柄頭で相手を沈める。慌てた様子はなく、護られているだけの男ではない。やがて家康が僅かに眉を寄せた。敵の刃は鋭いというのに、自分へ向かうものだけが不自然なほど急所を避けている。","id":"n0071"},{"t":"s","who":"おふう","text":"「……妙ねえ。殺気が感じられないわ」","id":"s0073"},{"t":"n","text":"扇越しに戦況を眺めていたおふうの一言で、半蔵も確信した。","id":"n0075"},{"t":"s","who":"半蔵","text":"「……狙いは生け捕りか」","id":"s0077"},{"t":"n","text":"襲撃者たちが一斉に後退し、山道の中央を空ける。その奥から現れた武将は、左手に小さな黒い器を携えていた。","id":"nc0000"},{"t":"s","who":"左馬之助","text":"「我が名は――明智左馬之助。徳川家康殿、御身を預からせていただく」","id":"sc0001"},{"t":"n","text":"半蔵が家康の前へ出る。家康は刀を下げぬまま、相手を静かに見据えた。","id":"nc0002"},{"t":"s","who":"家康","text":"「悪いが、そう簡単には預けられんな」","id":"sc0003"},{"t":"n","text":"その返答と同時に、左馬之助の足が地を滑る。","id":"nc0004"},{"t":"s","who":"左馬之助","text":"「秘技――湖水渡り」","id":"sc0005"},{"t":"n","text":"次に見えた時には、すでに家康の目前へ迫っていた。追いついた虎鉄が刃を受けるものの、力そのものが横へ流される。","id":"nc0006"},{"t":"s","who":"左馬之助","text":"「秘剣――水鏡」","id":"sc0007"},{"t":"n","text":"返しの切っ先が首筋へ迫り、半蔵は上体を反らしてかわした。刃は皮膚には届かなかったが、眼帯の端を浅く裂く。","id":"nc0008"},{"t":"s","who":"半蔵","text":"「……やるな」","id":"sc0009"},{"t":"n","text":"再び間合いが詰まる。虎鉄の連撃を流し続ける相手へ横から飛燕が迫り、左馬之助は身を沈めて巨大な刃をかわした。","id":"nc0010"},{"t":"n","text":"その背後で、銀白の髪が揺れる。","id":"nc0011"},{"t":"s","who":"半蔵","text":"「……雪姫」","id":"sc0012"},{"t":"n","text":"半蔵の足が僅かに止まった。","id":"nc0013"},{"t":"n","text":"二人の視線が一瞬だけ重なる。先に目を逸らした雪姫は、すぐに同行していた男へ向き直った。","id":"nc0014"},{"t":"s","who":"雪姫","text":"「家康様を捕らえるなんて、私は聞いていない」","id":"sc0015"},{"t":"s","who":"左馬之助","text":"「必要なことだ」","id":"sc0016"},{"t":"n","text":"左馬之助はそれ以上答えない。","id":"nc0017"},{"t":"n","text":"雪姫がなおも問い詰めようとしたところで、おふうが黒い器へ目を留めた。","id":"nc0018"},{"t":"s","who":"おふう","text":"「ねえ。その器……何を入れてるの？」","id":"sc0019"},{"t":"n","text":"いつの間にか笑みが消れている。扇を握る指が僅かに強張った。","id":"nc0020"},{"t":"s","who":"おふう","text":"「……ずいぶん大層なものを封じてるじゃない」","id":"sc0021"},{"t":"n","text":"その瞬間、半蔵の腰で黒鞘の一振りが震えた。眼帯の奥にも鈍い痛みが走り、呼応するように黒い器まで揺れ始める。","id":"nc0022"},{"t":"n","text":"――どくん。","id":"nc0023"},{"t":"n","text":"やがて、その内側から低い声が響いた。","id":"nc0024"},{"t":"s","who":"信長","text":"『久しいな――家康』","id":"sc0025"},{"t":"n","text":"家康の表情が変わった。","id":"nc0026"}], images={"kotetsu":"assets/003_b69b19580.png","hien":"assets/004_c60caa07d.png","akatsuki": "assets/005_5624f6b6b.png", "messenger": "assets/006_39739c7e4.png", "soulvessel": "assets/007_9c8fbb3df.png", "foxmask": "assets/008_b39dbccdd.png", "itemframe": "assets/009_4f1d8b371.png", "hideyoshi": "assets/010_7466aff03.webp", "ieyasu": "assets/011_bb37a6d74.webp", "samanosuke": "assets/012_f81fdb814.webp", "mitsuhide": "assets/013_e6db481cc.png", "nobunaga": "assets/014_05d1ce217.webp", "ayame": "assets/015_a9631a15d.webp", "yukihime": "assets/016_e2b459444.webp", "hanzo": "assets/017_cd2e8e5c5.webp", "ofuu": "assets/018_dedfc6c8f.webp"}, names={"信長": "nobunaga", "光秀": "mitsuhide", "左馬之助": "samanosuke", "雪姫": "yukihime", "半蔵": "hanzo", "家康": "ieyasu", "おふう": "ofuu", "秀吉": "hideyoshi", "あやめ": "ayame", "使者": "messenger"}, leftChars=new Set(["信長", "左馬之助", "秀吉", "光秀"]);
+const mouthAnchors={
+  ayame:{y:'31%', yMobile:'28%', tailTop:'28px', tailTopMobile:'20px'},
+  hanzo:{y:'34%', yMobile:'31%', tailTop:'30px', tailTopMobile:'22px'},
+  hideyoshi:{y:'30%', yMobile:'27%', tailTop:'26px', tailTopMobile:'19px'},
+  messenger:{y:'31%', yMobile:'28%', tailTop:'27px', tailTopMobile:'20px'},
+  ieyasu:{y:'31%', yMobile:'28%', tailTop:'27px', tailTopMobile:'20px'},
+  mitsuhide:{y:'33%', yMobile:'30%', tailTop:'29px', tailTopMobile:'21px'},
+  nobunaga:{y:'33%', yMobile:'30%', tailTop:'29px', tailTopMobile:'21px'},
+  ofuu:{y:'34%', yMobile:'31%', tailTop:'31px', tailTopMobile:'22px'},
+  samanosuke:{y:'34%', yMobile:'31%', tailTop:'30px', tailTopMobile:'22px'},
+  yukihime:{y:'33%', yMobile:'30%', tailTop:'29px', tailTopMobile:'21px'}
+};
+const portrait=document.getElementById('portrait');
+const narrative=document.getElementById('narrative');
+const narrativeText=document.getElementById('narrativeText');
+const conversation=document.getElementById('conversation');
+const speakerEl=document.getElementById('speaker');
+const bubbleEl=document.getElementById('bubble');
+const itemOverlay=document.getElementById('itemOverlay');
+const itemFrame=document.getElementById('itemFrame');
+const itemImage=document.getElementById('itemImage');
+const itemNameEl=document.getElementById('itemName');
+const itemDescEl=document.getElementById('itemDesc');
+const chapterCard=document.getElementById('chapterCard');
+const chapterTitle=document.getElementById('chapterTitle');
+const countEl=document.getElementById('count');
+const stageEl=document.getElementById('stage');
+const sceneBgA=document.getElementById('sceneBgA');
+const sceneBgB=document.getElementById('sceneBgB');
+const sceneTransitionFx=document.getElementById('sceneTransitionFx');
+const initialStageBackground=getComputedStyle(stageEl).backgroundImage;
+stageEl.style.backgroundImage='none';
+const sceneBackgrounds={
+  honnoji: initialStageBackground,
+  hideout: 'linear-gradient(to bottom,rgba(8,10,18,.18),rgba(6,8,14,.42)), url("assets/019_0e4989d67.png")',
+  nightmountain: 'linear-gradient(to bottom,rgba(4,8,18,.16),rgba(3,7,18,.44)), url("assets/020_dcadb4a36.png")'
+};
+let activeSceneLayer=sceneBgA;
+let currentSceneKey='honnoji';
+sceneBgA.style.backgroundImage=sceneBackgrounds.honnoji;
+sceneBgA.classList.add('active');
+function firstIndexBySrcId(srcId){
+  return units.findIndex(u=>u.srcId===srcId);
+}
+const hideoutStartIndexRef='s0049';
+const chapter1StartId='h0057';
+const chapter2StartId='hc0027';
+function sceneKeyForIndex(i){
+  const hideoutStart=firstIndexBySrcId(hideoutStartIndexRef);
+  const chapter1Start=firstIndexBySrcId(chapter1StartId);
+  const chapter2Start=firstIndexBySrcId(chapter2StartId);
+  if(hideoutStart>=0 && chapter1Start>=0 && i>=hideoutStart && i<chapter1Start) return 'hideout';
+  if(chapter1Start>=0 && i>=chapter1Start && (chapter2Start<0 || i<chapter2Start)) return 'nightmountain';
+  return 'honnoji';
+}
+let sceneFxTimer=null;
+function pulseSceneFx(){
+  if(!sceneTransitionFx) return;
+  sceneTransitionFx.classList.add('flash');
+  clearTimeout(sceneFxTimer);
+  sceneFxTimer=setTimeout(()=>sceneTransitionFx.classList.remove('flash'),300);
+}
+function setSceneBackgroundForIndex(i, immediate=false){
+  const key=sceneKeyForIndex(i);
+  const bg=sceneBackgrounds[key] || sceneBackgrounds.honnoji;
+  if(immediate){
+    sceneBgA.style.backgroundImage=bg;
+    sceneBgA.classList.add('active');
+    sceneBgB.classList.remove('active');
+    activeSceneLayer=sceneBgA;
+    currentSceneKey=key;
+    return;
+  }
+  if(key===currentSceneKey) return;
+  const nextLayer=(activeSceneLayer===sceneBgA)?sceneBgB:sceneBgA;
+  nextLayer.style.backgroundImage=bg;
+  nextLayer.classList.add('active');
+  activeSceneLayer.classList.remove('active');
+  activeSceneLayer=nextLayer;
+  currentSceneKey=key;
+  pulseSceneFx();
+}
+
+
+function splitSentences(text){
+  const clean=(text||'').trim();
+  if(!clean) return [''];
+  const matches=clean.match(/[^。！？\n]+[。！？]?[\u0027"”」』]?|\n+/g);
+  const out=(matches||[clean]).map(s=>s.trim()).filter(Boolean);
+  return out.length?out:[clean];
+}
+function normalizeSpeech(text){return (text||'').replace(/^\s*[「『]/,'').replace(/[」』]\s*$/,'');}
+const units=[];
+for(const e of rawEntries){
+  if(e.t==='n'){
+    const parts=splitSentences(e.text);
+    parts.forEach((part,i)=>units.push({kind:'n', text:part, srcId:e.id||'', chunk:i+1, total:parts.length}));
+  }else if(e.t==='s'){
+    units.push({kind:'s', who:e.who||'', text:normalizeSpeech(e.text), srcId:e.id||''});
+  }else if(e.t==='h'){
+    units.push({kind:'h', text:e.text||'', srcId:e.id||''});
+  }
+}
+const foxInsertIndex=units.findIndex(u=>u.srcId==='n0035');
+if(foxInsertIndex>=0){
+  units.splice(foxInsertIndex+1,0,{kind:'i', itemKey:'foxmask', frameKey:'itemframe', name:'金色の狐面', srcId:'item0000'});
+}
+// Display newly introduced weapons after their first described appearance.
+function insertWeaponAfter(srcId,fragment,object){
+ const at=units.findIndex(u=>u.kind==='n'&&u.srcId===srcId&&(u.text||'').includes(fragment));
+ if(at>=0)units.splice(at+1,0,object);
+}
+insertWeaponAfter('n0051','虎鉄',{kind:'i',itemKey:'kotetsu',frameKey:'itemframe',name:'虎鉄',srcId:'item0002'});
+insertWeaponAfter('n0063','飛燕',{kind:'i',itemKey:'hien',frameKey:'itemframe',name:'飛燕',srcId:'item0003'});
+insertWeaponAfter('nc0111','アカツキ',{kind:'i',itemKey:'akatsuki',frameKey:'itemframe',name:'妖刀・アカツキ',srcId:'item0004'});
+const soulInsertIndex=units.findIndex(u=>u.srcId==='n0039');
+if(soulInsertIndex>=0){
+  units.splice(soulInsertIndex+1,0,{kind:'i', itemKey:'soulvessel', frameKey:'itemframe', name:'黒い器', srcId:'item0001'});
+}
+
+let idx=0;
+let typingTimer=null;
+let phase='idle'; // typing / ready / afterSpeech
+let activeLine=null;
+let pageStart=0;
+let itemTimer=null;
+function clearItemTimer(){ if(itemTimer!==null){ clearTimeout(itemTimer); itemTimer=null; } }
+
+function clearTyping(){ if(typingTimer!==null){clearInterval(typingTimer);typingTimer=null;} }
+function hidePortrait(){ portrait.style.opacity='0'; portrait.classList.remove('show');portrait.classList.add('hide'); }
+function hideAll(){ clearItemTimer(); narrative.style.display='none'; conversation.style.display='none'; chapterCard.classList.remove('show'); itemOverlay.classList.remove('show','fadeout'); itemOverlay.setAttribute('aria-hidden','true'); hidePortrait(); }
+function updateCount(){ countEl.textContent=(idx+1)+' / '+units.length; }
+function charSide(who){ return leftChars.has(who)?'left':'right'; }
+function showPortrait(who){
+  const key=names[who]||'';
+  if(key && images[key]){
+    const side=charSide(who);
+    const anchor=mouthAnchors[key] || {y:'32%', yMobile:'29%', tailTop:'29px', tailTopMobile:'21px'};
+    conversation.style.setProperty('--mouth-y', anchor.y);
+    conversation.style.setProperty('--mouth-y-mobile', anchor.yMobile || anchor.y);
+    conversation.style.setProperty('--tail-top', anchor.tailTop || '29px');
+    conversation.style.setProperty('--tail-top-mobile', anchor.tailTopMobile || anchor.tailTop || '21px');
+    portrait.style.opacity='0';
+    portrait.className=side;
+    portrait.src=images[key];
+    portrait.classList.add('show');
+    portrait.style.opacity='1';
+    return side;
+  }
+  hidePortrait();
+  conversation.style.removeProperty('--mouth-y');
+  conversation.style.removeProperty('--mouth-y-mobile');
+  conversation.style.removeProperty('--tail-top');
+  conversation.style.removeProperty('--tail-top-mobile');
+  return 'right';
+}
+function startTyping(target, text){
+  clearTyping();target.textContent='';phase='typing';
+  const letters=Array.from(text||'');let i=0;
+  const speed=letters.length>40?20:26;
+  typingTimer=setInterval(()=>{
+    i=Math.min(i+1,letters.length);
+    target.textContent=letters.slice(0,i).join('');
+    if(i>=letters.length){clearTyping();phase='ready';}
+  },speed);
+  if(!letters.length){clearTyping();phase='ready';}
+}
+function finishCurrent(){
+  clearTyping();const u=units[idx];
+  if(u.kind==='n'&&activeLine)activeLine.textContent=u.text;
+  if(u.kind==='s')bubbleEl.textContent=u.text;
+  phase='ready';
+}
+function appendNarrative(u, reset){
+  if(reset){narrativeText.replaceChildren();pageStart=idx;}
+  narrative.style.display='flex';
+  const line=document.createElement('p');line.className='line';
+  narrativeText.append(line);
+  // Estimate with actual DOM layout: when next line would exceed available vertical space,
+  // turn the page before typing it. Existing lines stay until then.
+  line.textContent=u.text;
+  const max=narrative.clientHeight-parseFloat(getComputedStyle(narrative).paddingTop)-parseFloat(getComputedStyle(narrative).paddingBottom);
+  const over=narrativeText.scrollHeight>max+2;
+  if(over&&narrativeText.children.length>1){
+    narrativeText.replaceChildren(line);
+    pageStart=idx;
+  }
+  activeLine=line;
+  startTyping(line,u.text);
+}
+function formatDialogue(text){
+  // Preserve author line breaks; insert newlines only after natural pauses.
+  const source=(text||'').replace(/\r\n/g,'\n');
+  const parts=source.split('\n');
+  const limit=22;
+  return parts.map(part=>{
+    if(Array.from(part).length<=limit) return part;
+    let result='',start=0;
+    const chars=Array.from(part);
+    while(chars.length-start>limit+5){
+      let split=-1;
+      for(let j=Math.min(start+limit+5,chars.length-1);j>=start+11;j--){
+        if('、。！？!?，；;'.includes(chars[j])) {split=j+1;break;}
+      }
+      if(split<0) break; // prefer natural browser wrapping over splitting words
+      result+=chars.slice(start,split).join('')+'\n';
+      start=split;
+    }
+    return result+chars.slice(start).join('');
+  }).join('\n');
+}
+
+const cardDescriptions={soulvessel:'信長の魂を封じるために用いられた漆黒の器。内部には異様な霊気が渦巻く。',foxmask:'明智光秀の顔を覆っていた金色の狐面。その来歴と力はいまだ謎に包まれる。',akatsuki:'妖しい紅光を宿す伝説の刀。半蔵の運命を変える刃。',kotetsu:'半蔵が携える使い慣れた刀。素早く正確な一閃で敵の刃を退ける。',hien:'あやめが操る巨大な四方刃の手裏剣。風を切り、迫る敵を薙ぎ払う。'};
+function showItemCard(u){
+  clearItemTimer();
+  narrative.style.display='none';
+  conversation.style.display='none';
+  chapterCard.classList.remove('show');
+  hidePortrait();
+  itemFrame.src=images[u.frameKey]||'';
+  itemImage.src=images[u.itemKey]||'';
+  document.querySelector('#itemOverlay .item-card').classList.toggle('full-card-media', u.itemKey==='kotetsu'||u.itemKey==='hien');
+  itemNameEl.textContent=u.name||'';
+  itemDescEl.textContent=cardDescriptions[u.itemKey]||'';
+  itemOverlay.classList.remove('fadeout');
+  itemOverlay.classList.add('show');
+  itemOverlay.setAttribute('aria-hidden','false');
+  phase='item';
+  itemTimer=setTimeout(()=>{ itemOverlay.classList.add('fadeout'); }, 2400);
+  itemTimer=setTimeout(()=>{
+    itemOverlay.classList.remove('show','fadeout');
+    itemOverlay.setAttribute('aria-hidden','true');
+    itemTimer=null;
+    if(idx<units.length-1){ idx++; showUnit(false); }
+    else { phase='ready'; }
+  }, 3000);
+}
+
+// Non-speaking introductions in the prologue. These are staging cues, not new dialogue.
+const silentEntrances={
+  'n0005':{who:'光秀',side:'right',match:'明智光秀'},
+  'n0015':{who:'雪姫',side:'right',match:'雪姫'},
+  'n0031':{who:'光秀',side:'right',match:'光秀もその場へ膝'},
+  'n0051':{who:'半蔵',side:'right',match:'服部半蔵正成'},
+  'n0055':{who:'おふう',side:'left',match:'おふうも扇'}
+};
+// Silent cameo: stage character and named ellipsis, then return to the SAME sentence.
+let silentPhase='none';
+let silentUnit=-1;
+const silentSeen=new Set();
+function findSilentCue(u){
+ if(!u || u.kind!=='n' || silentSeen.has(idx))return null;
+ const cue=silentEntrances[u.srcId];
+ return cue && (u.text||'').includes(cue.match) ? cue : null;
+}
+function beginSilentCue(cue){
+ clearTyping();
+ narrative.style.display='none'; narrativeText.replaceChildren(); activeLine=null;
+ chapterCard.classList.remove('show');
+ narrative.classList.remove('cameo-left','cameo-right');
+ const side=cue.side || charSide(cue.who);
+ const key=names[cue.who];
+ if(!key || !images[key])return false;
+ showPortrait(cue.who);
+ // Scenario-specific placement: Nobunaga remains left, Hanzo always right.
+ if(cue.who==='光秀' && cue.side==='right'){
+  portrait.className='right show';
+ }
+ if(cue.who==='おふう' && cue.side==='left'){
+  portrait.className='left show';
+ }
+ conversation.className=(side==='left'?'leftSpeaker':'rightSpeaker');
+ conversation.style.display='flex';
+ speakerEl.textContent=cue.who;conversation.dataset.speaker=cue.who;
+ bubbleEl.textContent='・・・・・';
+ bubbleEl.style.setProperty('--dialog-width',window.innerWidth>700?'265px':'170px');
+ silentPhase='visible';silentUnit=idx;phase='silent';
+ return true;
+}
+function dismissSilentCue(){
+ conversation.style.display='none'; hidePortrait();
+ silentPhase='cleared';phase='silentCleared';
+}
+function showUnit(rebuild=false){
+  setSceneBackgroundForIndex(idx,false);
+  clearTyping(); clearItemTimer(); itemOverlay.classList.remove('show','fadeout'); itemOverlay.setAttribute('aria-hidden','true'); const u=units[idx];updateCount();if(!u)return;
+  if(u.kind==='h'){
+    narrative.classList.remove('cameo-left','cameo-right');
+    hideAll();activeLine=null;
+    narrativeText.replaceChildren();
+    const match=(u.text||'').match(/^(序章|終章|第[一二三四五六七八九十0-9]+章)[　\s]*(.*)$/);
+    chapterTitle.replaceChildren();
+    if(match){
+      const number=document.createElement('span'); number.className='chapter-number'; number.textContent=match[1];
+      const chapterName=document.createElement('span'); chapterName.className='chapter-name'; chapterName.textContent=match[2]||'';
+      chapterTitle.append(number,chapterName);
+    }else chapterTitle.textContent=u.text;
+    chapterCard.classList.add('show');phase='ready';return;
+  }
+  if(u.kind==='i'){
+    narrative.classList.remove('cameo-left','cameo-right');
+    showItemCard(u);
+    return;
+  }
+  if(u.kind==='s'){
+    narrative.classList.remove('cameo-left','cameo-right');
+    portrait.classList.remove('cameo');
+    narrative.style.display='none';narrativeText.replaceChildren();activeLine=null;
+    chapterCard.classList.remove('show');
+    const side=showPortrait(u.who);
+    conversation.className=side==='left'?'leftSpeaker':'rightSpeaker';
+    conversation.style.display='flex';
+    speakerEl.textContent=u.who||'会話';conversation.dataset.speaker=u.who||'';
+    // Pre-compute width from completed dialogue, so typing does not resize the bubble.
+    const glyphCount=Array.from(u.text||'').length;
+    const wide=window.innerWidth>700;
+    const minW=wide?340:230, maxW=wide?930:540;
+    const ideal=minW + Math.max(0,glyphCount-5)*(wide?25:16);
+    bubbleEl.style.setProperty('--dialog-width',Math.min(maxW,ideal)+'px');
+    // Dialogue displays in full immediately; only narrative uses typewriter animation.
+    clearTyping();
+    bubbleEl.textContent=u.text;
+    phase='ready';
+    return;
+  }
+  conversation.style.display='none';chapterCard.classList.remove('show');hidePortrait();
+  const cue=findSilentCue(u);
+  if(cue && beginSilentCue(cue))return;
+  silentPhase='none';
+  appendNarrative(u,rebuild||!narrativeText.children.length);
+}
+function goTo(target){
+  silentPhase='none';
+  clearTyping();idx=Math.max(0,Math.min(units.length-1,target));
+  narrativeText.replaceChildren();activeLine=null;phase='idle';
+  // restore existing narrative on back navigation, bounded by last interruption
+  if(units[idx].kind==='n'){
+    let first=idx;
+    while(first>0&&units[first-1].kind==='n')first--;
+    // one chunk at a time for the estimate, without extra animation
+    for(let k=first;k<idx;k++){
+      const temp=units[k];
+      narrative.style.display='flex';
+      const ln=document.createElement('p');ln.className='line';ln.textContent=temp.text;narrativeText.append(ln);
+      const cs=getComputedStyle(narrative);
+      const max=narrative.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+      if(narrativeText.scrollHeight>max+2&&narrativeText.children.length>1)narrativeText.replaceChildren(ln);
+    }
+  }
+  setSceneBackgroundForIndex(idx,true);
+  showUnit(false);
+}
+const chapterCurtain=document.getElementById('chapterCurtain');
+let chapterTransitionBusy=false;
+function beginChapterTransition(targetIndex){
+ if(chapterTransitionBusy)return;
+ chapterTransitionBusy=true;
+ clearTyping();
+ chapterCurtain.classList.add('active');
+ setTimeout(()=>{
+   idx=targetIndex;
+   showUnit(false);
+   setTimeout(()=>{
+     chapterCurtain.classList.remove('active');
+     setTimeout(()=>{chapterTransitionBusy=false;},550);
+   },330);
+ },560);
+}
+function nextStep(){
+  if(chapterTransitionBusy || phase==='item')return;
+  if(silentPhase==='visible'){dismissSilentCue();return;}
+  if(silentPhase==='cleared'){
+    silentSeen.add(silentUnit);
+    silentPhase='none';
+    showUnit(true); // Resume the interrupted sentence; do not increment idx.
+    return;
+  }
+  const u=units[idx];if(!u)return;
+  if(phase==='typing'){finishCurrent();return;}
+  if(u.kind==='s'&&phase==='ready'){
+    // First press clears dialogue AND actor, keeping the current stage empty.
+    conversation.style.display='none';hidePortrait();phase='afterSpeech';return;
+  }
+  if(idx===units.length-1){showTestPlayEnd();return;}
+  if(idx<units.length-1){
+    if(units[idx+1].kind==='h'){
+      beginChapterTransition(idx+1);
+    }else{
+      idx++;showUnit(false);
+    }
+  }
+}
+function prevStep(){if(!chapterTransitionBusy && phase!=='item' && idx>0)goTo(idx-1);}
+document.getElementById('next').onclick=nextStep;
+document.getElementById('prev').onclick=prevStep;
+document.getElementById('restart').onclick=()=>goTo(0);
+document.getElementById('stage').addEventListener('click',e=>{if(!e.target.closest('button'))nextStep();});
+document.addEventListener('keydown',e=>{if(['Enter','ArrowRight',' '].includes(e.key)){e.preventDefault();nextStep();}else if(e.key==='ArrowLeft'){e.preventDefault();prevStep();}});
+// Recalculate narrative page fit after orientation changes without restarting the story.
+let resizeJob;
+function fitExistingNarrative(){
+  if(narrative.style.display==='none' || !narrativeText.children.length) return;
+  const max=narrative.clientHeight-parseFloat(getComputedStyle(narrative).paddingTop)-parseFloat(getComputedStyle(narrative).paddingBottom);
+  while(narrativeText.children.length>1 && narrativeText.scrollHeight>max+2){
+    narrativeText.firstElementChild.remove();
+  }
+}
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeJob);
+  resizeJob=setTimeout(fitExistingNarrative,110);
+});
+window.addEventListener('orientationchange',()=>{
+  clearTimeout(resizeJob);
+  resizeJob=setTimeout(fitExistingNarrative,220);
+});
+
+function showTestPlayEnd(){
+  clearTyping();clearItemTimer();
+  document.getElementById('testPlayEnd').hidden=false;
+  phase='testplay-end';
+  if(typeof music!=='undefined' && music) music.pause();
+}
+document.getElementById('returnTitleFromEnd').addEventListener('click',()=>{
+  document.getElementById('testPlayEnd').hidden=true;
+  document.getElementById('restart').click();
+  if(typeof titleScreen!=='undefined'){titleScreen.style.display='';titleScreen.hidden=false;gameStarted=false;}
+});
+
+goTo(0);
+
+// Title and BGM controller
+const titleScreen=document.getElementById('titleScreen');
+const music=document.getElementById('music');
+const dialog=document.getElementById('menuDialog');
+const dialogTitle=document.getElementById('dialogTitle');
+const dialogContent=document.getElementById('dialogContent');
+const trackURLs={title:"assets/021_ad3ea75c9.mp3",prologue:"assets/022_bf8ad3786.mp3"};
+let track='';let fadeToken=0;let masterVolume=0.55;let gameStarted=false;
+const enableTitleMusic=document.getElementById('enableTitleMusic');
+function showMusicFallback(){enableTitleMusic.hidden=gameStarted || !music.paused;}
+function tryStartMusic(){
+ let attempt;
+ try{attempt=music.play();}catch(e){showMusicFallback();return;}
+ if(attempt&&typeof attempt.then==='function')attempt.then(()=>{enableTitleMusic.hidden=true;}).catch(()=>{showMusicFallback();});
+ else enableTitleMusic.hidden=true;
+}
+function switchTrack(name){
+ const url=trackURLs[name];if(!url)return;
+ if(track===name){music.volume=masterVolume;if(music.paused)tryStartMusic();return;}
+ ++fadeToken;const token=fadeToken;
+ const previous=music.volume;
+ function begin(){
+  if(token!==fadeToken)return;
+  music.pause();music.src=url;music.loop=true;music.currentTime=0;track=name;
+  // Start audibly; never silently fade a blocked play attempt.
+  music.volume=masterVolume;
+  tryStartMusic();
+ }
+ if(music.paused||!music.src){begin();return;}
+ let n=0;const fadeOut=setInterval(()=>{
+  if(token!==fadeToken){clearInterval(fadeOut);return;}
+  n++;music.volume=Math.max(0,previous*(1-n/9));
+  if(n>=9){clearInterval(fadeOut);begin();}
+ },35);
+}
+enableTitleMusic.addEventListener('click',()=>{switchTrack(gameStarted?'prologue':'title');tryStartMusic();});
+function closeTitle(){titleScreen.style.display='none';gameStarted=true;enableTitleMusic.hidden=true;switchTrack('prologue');}
+function saveProgress(){if(gameStarted)try{localStorage.setItem('akatsuki_testplay_save',String(idx));}catch(e){}}
+function startNew(){closeTitle();goTo(0);saveProgress();}
+document.getElementById('startStory').addEventListener('click',startNew);
+document.getElementById('resumeStory').addEventListener('click',()=>{let saved=0;try{saved=Number(localStorage.getItem('akatsuki_testplay_save'))||0}catch(e){}closeTitle();goTo(Math.min(Math.max(saved,0),units.length-1));saveProgress();});
+function showDialog(title,body){dialogTitle.textContent=title;dialogContent.replaceChildren();if(typeof body==='string'){dialogContent.textContent=body;}else dialogContent.append(body);dialog.hidden=false;}
+document.getElementById('dialogClose').onclick=()=>{dialog.hidden=true;};
+document.getElementById('galleryOpen').onclick=()=>{const img=document.createElement('img');img.className='gallery-img';img.src='assets/001_426a7fab8.png';img.alt='第一章イラスト';showDialog('ギャラリー',img);};
+document.getElementById('settingsOpen').onclick=()=>{const wrap=document.createElement('div');const label=document.createElement('label');label.textContent='BGM 音量';const slider=document.createElement('input');slider.type='range';slider.min='0';slider.max='1';slider.step='.05';slider.value=masterVolume;slider.oninput=()=>{masterVolume=Number(slider.value);music.volume=masterVolume;};wrap.append(label,document.createElement('br'),slider);showDialog('設定',wrap);};
+// Browsers allow audio to begin only after a user's gesture.
+// Attempt title music immediately; browser policy may reject unmuted autoplay.
+switchTrack('title');
+// Any interaction with the title screen can also unlock playback.
+titleScreen.addEventListener('pointerdown',()=>{if(!gameStarted&&music.paused)tryStartMusic();});
+const originalNext=nextStep;
+nextStep=function(){if(!gameStarted)return;originalNext();saveProgress();};
+const originalPrev=prevStep;
+prevStep=function(){if(!gameStarted)return;originalPrev();saveProgress();};
+document.addEventListener("keydown",(e)=>{if(!gameStarted && ["Enter","ArrowRight","ArrowLeft"," "].includes(e.key)){if(e.target.tagName!=="BUTTON"){e.stopImmediatePropagation();e.preventDefault();}}},true);
+// The title covers the game until Start is selected.
+</script>
+<script>
+(function(){
+  const galleryBtn=document.getElementById('galleryOpen');
+  if(galleryBtn) galleryBtn.textContent='人物紹介';
+  const decisionFlash=document.getElementById('decisionFlash');
+  function quickDecisionVisual(btn){
+    if(btn){btn.classList.add('decision-hit'); setTimeout(()=>btn.classList.remove('decision-hit'),140);}
+    decisionFlash.classList.remove('show');
+    void decisionFlash.offsetWidth;
+    decisionFlash.classList.add('show');
+    setTimeout(()=>decisionFlash.classList.remove('show'),180);
+    if(navigator.vibrate){ try{ navigator.vibrate(18); }catch(e){} }
+  }
+  document.querySelectorAll('.title-menu button, .controls button').forEach(btn=>{
+    btn.addEventListener('click',()=>quickDecisionVisual(btn));
+  });
+
+  const codex=document.getElementById('characterCodex');
+  const codexNav=document.getElementById('codexNav');
+  const codexFigure=document.getElementById('codexFigure');
+  const codexRole=document.getElementById('codexRole');
+  const codexName=document.getElementById('codexName');
+  const codexRuby=document.getElementById('codexRuby');
+  const codexCatch=document.getElementById('codexCatch');
+  const codexPoints=document.getElementById('codexPoints');
+  const codexDesc=document.getElementById('codexDesc');
+  const codexClose=document.getElementById('codexClose');
+  const profiles=[
+    {key:'hanzo',label:'服部半蔵',ruby:'はっとり はんぞう',role:'主人公 / 伊賀忍',catch:'徳川家康に仕える、寡黙にして苛烈な伊賀の忍。乱世の陰に蠢く異変を追い、仲間とともに京へ向かう。',points:['所属：徳川家','得意：剣術・忍術','印象：冷静沈着 / 義に厚い'],desc:['感情を荒げることは少ないが、ひとたび守るべきもののために刃を抜けば、その一撃は誰よりも鋭い。状況判断に優れ、仲間の危機には真っ先に身を投じる。','本作では、乱世の裏で動き出した異形の気配と向き合う視点人物。主君への忠義と、仲間を救いたいという想いの狭間で戦い抜く。']},
+    {key:'ayame',label:'あやめ',ruby:'あやめ',role:'甲賀くノ一',catch:'風のように軽やかに戦場を駆ける、甲賀のくノ一。鋭い勘と素早い手さばきで、半蔵たちを支える。',points:['所属：甲賀','得意：奇襲・投擲','印象：快活 / 面倒見がよい'],desc:['身のこなしは俊敏そのもので、敵の隙を見抜くのも早い。軽妙な口調の奥には仲間思いな一面があり、張り詰めた空気を和らげる存在でもある。','危険な局面でも怯まず飛び込み、必要とあらば大胆な賭けにも出る。半蔵たちと行動を共にしながら、物語のテンポを前へ押し進める。']},
+    {key:'yukihime',label:'雪姫',ruby:'ゆきひめ',role:'秘術師 / 封印の使い手',catch:'白き術で禍を封じる、静謐なる秘術師。霊的な異変を見抜く稀有な力を持つ。',points:['立場：封印役','得意：結界・浄化・拘束','印象：静か / 芯が強い'],desc:['炎や血の匂いが満ちる戦場にあっても、その佇まいはどこか凛としている。感情を大きく表には出さないが、危険を前にすれば誰よりも早く覚悟を決める。','信長の魂を封じる役目を担うなど、物語の核心に近い場面で重要な働きを見せる。武で押し切るのではなく、術によって局面を支配するタイプ。']},
+    {key:'ieyasu',label:'徳川家康',ruby:'とくがわ いえやす',role:'徳川家当主',catch:'沈着に全体を見渡す、徳川家の将。軽々しく動かず、しかし決断すべき時は誰よりも早い。',points:['所属：徳川家','得意：統率・戦略','印象：慎重 / 現実的'],desc:['戦場の熱に呑まれず、常に一歩引いた視点から情勢を見極める。周囲の言葉をよく聞き、短慮に走らない器の大きさを持つ。','半蔵にとっては主君であり、進むべき道を照らす存在。乱世の中で生き残るために必要な冷静さを体現する人物でもある。']},
+    {key:'ofuu',label:'おふう',ruby:'おふう',role:'旅の娘 / 情報通',catch:'人懐こい笑顔の裏で、場の空気と人の機微を読む少女。軽やかな言葉で仲間たちを支える。',points:['役回り：案内・情報収集','得意：観察・交渉','印象：明るい / したたか'],desc:['一見すると朗らかで柔らかな雰囲気だが、人を見る目は鋭い。緊張が走る場でも物怖じせず、自分の足で情報を拾ってくる逞しさを持つ。','重苦しい展開の中でも、物語に息継ぎを与えてくれる存在。人と人を繋ぐ役として、旅路の空気を彩っていく。']},
+    {key:'nobunaga',label:'織田信長',ruby:'おだ のぶなが',role:'覇王',catch:'戦乱の中心に君臨した覇王。その死は終わりではなく、新たな異変の引き金となっていく。',points:['立場：対立の核','得意：圧倒的武威','印象：苛烈 / 威圧的'],desc:['燃え盛る本能寺にあってなお、その眼差しは最後まで鋭く、常人にはない圧を放つ。圧倒的な存在感が場を支配し、敵味方を問わず強い印象を残す。','本作では物語の発端を象徴する人物として登場。信長という巨大な存在が残した歪みが、後の旅路にも濃い影を落としていく。']},
+    {key:'mitsuhide',label:'明智光秀',ruby:'あけち みつひで',role:'明智家当主',catch:'金色の狐面の奥に揺れる、理知と苦悩。反逆の名を背負いながらも、真相は容易に割り切れない。',points:['所属：明智家','得意：知略・剣術','印象：理知的 / 憂いを帯びる'],desc:['本来は冷静沈着で、感情に流されて刃を振るう人物ではない。だからこそ、本能寺で見せた異様な姿は周囲に大きな衝撃を与える。','乱の当事者でありながら、どこか被害者めいた影も背負う存在。物語が進むほどに、その内側に秘めた事情と苦悩が浮かび上がる。']},
+    {key:'samanosuke',label:'左馬之助',ruby:'さまのすけ',role:'明智の腹心',catch:'主への忠義を貫く、剛直なる剣士。感情を胸に秘めたまま、最前線で刃を振るう。',points:['所属：明智家','得意：接近戦','印象：実直 / 熱い忠義'],desc:['言葉数は多くないが、その忠誠は誰の目にも明らか。主を守るためなら危地にも躊躇なく踏み込み、泥を被る役回りも厭わない。','本能寺では光秀の傍らで戦い抜き、その後も彼を支える立場にある。厳つさの中に不器用な優しさが滲む人物。']},
+    {key:'hideyoshi',label:'羽柴秀吉',ruby:'はしば ひでよし',role:'織田方の俊英',catch:'軽やかな笑みの裏に、鋭い計算を忍ばせる男。乱世の流れを読む才に長ける。',points:['立場：策略家','得意：用兵・駆け引き','印象：快活 / 油断ならない'],desc:['人当たりは柔らかいが、その腹の内は容易に読ませない。誰とでも距離を詰める器用さと、機を見て動く嗅覚を兼ね備えている。','味方であっても一筋縄ではいかず、敵であればなおさら厄介。物語に独特の緊張感を持ち込む存在として、要所で強い印象を残す。']}
+  ];
+
+  let currentProfile=0;
+  let codexBuilt=false;
+
+  function makeProfileButton(profile, index){
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.innerHTML='<span>'+profile.label+'</span><span class="sub">'+profile.role+'</span>';
+    btn.addEventListener('click',()=>{
+      if(currentProfile===index){quickDecisionVisual(btn);return;}
+      quickDecisionVisual(btn);
+      setTimeout(()=>renderProfile(index, true), 90);
+    });
+    return btn;
+  }
+
+  function buildCodex(){
+    if(codexBuilt) return;
+    profiles.forEach((profile, index)=>codexNav.appendChild(makeProfileButton(profile, index)));
+    codexBuilt=true;
+  }
+
+  function renderProfile(index, animate){
+    currentProfile=index;
+    const p=profiles[index];
+    const figure=images[p.key] || '';
+    const apply=()=>{
+      codexRole.textContent=p.role;
+      codexName.textContent=p.label;
+      codexRuby.textContent=p.ruby;
+      codexCatch.textContent=p.catch;
+      codexFigure.src=figure;
+      codexFigure.alt=p.label;
+      codexPoints.replaceChildren();
+      p.points.forEach(txt=>{
+        const chip=document.createElement('span');
+        chip.className='codex-pill';
+        chip.textContent=txt;
+        codexPoints.appendChild(chip);
+      });
+      codexDesc.replaceChildren();
+      p.desc.forEach(txt=>{
+        const para=document.createElement('p');
+        para.textContent=txt;
+        codexDesc.appendChild(para);
+      });
+      [...codexNav.children].forEach((btn,i)=>btn.classList.toggle('active', i===index));
+    };
+    if(!animate){apply(); return;}
+    codex.classList.add('switching');
+    setTimeout(()=>{
+      apply();
+      codex.classList.remove('switching');
+    },140);
+  }
+
+  function openCodex(){
+    buildCodex();
+    dialog.hidden=true;
+    codex.hidden=false;
+    codex.classList.add('show');
+    document.body.style.overflow='hidden';
+    renderProfile(currentProfile,false);
+  }
+
+  function closeCodex(){
+    codex.classList.remove('show');
+    codex.hidden=true;
+    document.body.style.overflow='';
+  }
+
+  galleryBtn.onclick=(ev)=>{
+    if(ev){ev.preventDefault();}
+    quickDecisionVisual(galleryBtn);
+    setTimeout(openCodex,110);
+  };
+
+  codexClose.addEventListener('click',()=>{
+    quickDecisionVisual(codexClose);
+    setTimeout(closeCodex,90);
+  });
+  codex.addEventListener('click',(ev)=>{
+    if(ev.target===codex){closeCodex();}
+  });
+  document.addEventListener('keydown',(ev)=>{
+    if(codex.hidden) return;
+    if(ev.key==='Escape'){ev.preventDefault(); closeCodex(); return;}
+    if(ev.key==='ArrowDown' || ev.key==='ArrowRight'){ev.preventDefault(); renderProfile((currentProfile+1)%profiles.length, true);}
+    if(ev.key==='ArrowUp' || ev.key==='ArrowLeft'){ev.preventDefault(); renderProfile((currentProfile-1+profiles.length)%profiles.length, true);}
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  const profiles=[
+    {key:'hanzo',label:'服部半蔵',ruby:'はっとり はんぞう',role:'主人公 / 伊賀忍',catch:'寡黙にして苛烈な伊賀の忍。乱世の陰に蠢く異変を追う。'},
+    {key:'ayame',label:'あやめ',ruby:'あやめ',role:'甲賀くノ一',catch:'風のように軽やかに戦う、快活なくノ一。'},
+    {key:'yukihime',label:'雪姫',ruby:'ゆきひめ',role:'秘術師 / 封印の使い手',catch:'白き術で禍を封じる、静謐なる秘術師。'},
+    {key:'ieyasu',label:'徳川家康',ruby:'とくがわ いえやす',role:'徳川家当主',catch:'沈着に全体を見渡す、徳川家の将。'},
+    {key:'ofuu',label:'おふう',ruby:'おふう',role:'旅の娘 / 情報通',catch:'人懐こい笑顔で場をつなぐ、明るい案内役。'},
+    {key:'nobunaga',label:'織田信長',ruby:'おだ のぶなが',role:'覇王',catch:'戦乱の中心に君臨した覇王。'},
+    {key:'mitsuhide',label:'明智光秀',ruby:'あけち みつひで',role:'明智家当主',catch:'金色の狐面の奥に、理知と苦悩を秘める。'},
+    {key:'samanosuke',label:'左馬之助',ruby:'さまのすけ',role:'明智の腹心',catch:'主への忠義を貫く、剛直なる剣士。'},
+    {key:'hideyoshi',label:'羽柴秀吉',ruby:'はしば ひでよし',role:'織田方の俊英',catch:'軽やかな笑みの裏に鋭い計算を忍ばせる男。'}
+  ];
+  const codex=document.getElementById('characterCodex');
+  const overview=document.getElementById('codexOverview');
+  const backBtn=document.getElementById('codexBackList');
+  const nav=document.getElementById('codexNav');
+  const galleryBtn=document.getElementById('galleryOpen');
+  const closeBtn=document.getElementById('codexClose');
+  if(!codex||!overview||!nav||!galleryBtn||!backBtn) return;
+
+  function setOverviewMode(){
+    codex.classList.add('overview-mode');
+    codex.classList.remove('detail-mode');
+  }
+  function setDetailMode(){
+    codex.classList.remove('overview-mode');
+    codex.classList.add('detail-mode');
+  }
+  function ensureOverview(){
+    if(overview.dataset.ready==='1') return;
+    const head=document.createElement('div');
+    head.className='codex-overview-head';
+    head.innerHTML='<h3>登場人物一覧</h3><p>キャラクターを左右にスクロールして選択してください。選ぶと詳細プロフィールへ切り替わります。</p>';
+    const rail=document.createElement('div');
+    rail.className='codex-overview-scroll';
+    profiles.forEach((profile,index)=>{
+      const card=document.createElement('button');
+      card.type='button';
+      card.className='codex-card';
+      const src=(typeof images!=='undefined' && images[profile.key])?images[profile.key]:'';
+      card.innerHTML='<div class="codex-card-illust"><img alt="'+profile.label+'" src="'+src+'"></div><div class="codex-card-meta"><strong>'+profile.label+'</strong><span>'+profile.role+'</span><p>'+profile.catch+'</p></div>';
+      card.addEventListener('click',()=>{
+        setDetailMode();
+        const btn=nav.children[index];
+        if(btn) btn.click();
+      });
+      rail.appendChild(card);
+    });
+    overview.appendChild(head);
+    overview.appendChild(rail);
+    overview.dataset.ready='1';
+  }
+  ensureOverview();
+  backBtn.addEventListener('click',()=>{setOverviewMode();});
+  galleryBtn.addEventListener('click',()=>{setTimeout(()=>{ensureOverview();setOverviewMode();},130);});
+  closeBtn.addEventListener('click',()=>{setOverviewMode();});
+  codex.addEventListener('click',(e)=>{ if(e.target===codex) setOverviewMode(); });
+})();
+</script>
+
+
+<script>
+(function(){
+ const rail=document.querySelector('.codex-overview-scroll');
+ const overview=document.getElementById('codexOverview');
+ if(!rail||!overview)return;
+ const bar=document.createElement('div');bar.className='codex-scroll-controls';
+ const prev=document.createElement('button');prev.textContent='◀ 前へ';prev.type='button';
+ const label=document.createElement('span');label.textContent='左右にスワイプして選択';
+ const next=document.createElement('button');next.textContent='次へ ▶';next.type='button';
+ bar.append(prev,label,next);overview.appendChild(bar);
+ const scroll=(direction)=>rail.scrollBy({left:direction*Math.max(175,rail.clientWidth*.68),behavior:'smooth'});
+ prev.addEventListener('click',()=>scroll(-1));next.addEventListener('click',()=>scroll(1));
+ // Touch fallback for mobile in-app HTML viewers that do not delegate horizontal scrolling.
+ let startX=0,startY=0,lastX=0,dragging=false,moved=false,suppressUntil=0;
+ rail.addEventListener('touchstart',ev=>{
+   if(ev.touches.length!==1)return;
+   startX=lastX=ev.touches[0].clientX;startY=ev.touches[0].clientY;
+   dragging=false;moved=false;
+ },{passive:true});
+ rail.addEventListener('touchmove',ev=>{
+   if(ev.touches.length!==1)return;
+   const x=ev.touches[0].clientX,y=ev.touches[0].clientY;
+   if(!dragging&&Math.abs(x-startX)>8&&Math.abs(x-startX)>Math.abs(y-startY)*1.15)dragging=true;
+   if(dragging){
+     ev.preventDefault();
+     rail.scrollLeft+=lastX-x;
+     moved=true;
+   }
+   lastX=x;
+ },{passive:false});
+ rail.addEventListener('touchend',()=>{
+   if(moved)suppressUntil=Date.now()+450;
+   dragging=false;
+ },{passive:true});
+ rail.addEventListener('click',ev=>{
+   if(Date.now()<suppressUntil){ev.preventDefault();ev.stopPropagation();}
+ },true);
+})();
+</script>
+<script>
+(function(){
+const overview=document.getElementById('codexOverview'), codex=document.getElementById('characterCodex'), nav=document.getElementById('codexNav');
+if(!overview||!codex||!nav)return;
+const roster=[['hanzo','服部半蔵'],['ayame','あやめ'],['yukihime','雪姫'],['ieyasu','徳川家康'],['ofuu','おふう'],['nobunaga','織田信長'],['mitsuhide','明智光秀'],['samanosuke','左馬之助'],['hideyoshi','羽柴秀吉']];
+let current=0, sx=null,sy=null;
+overview.replaceChildren();
+const heading=document.createElement('div');heading.className='roulette-title';heading.textContent='左右に回して人物を選択';
+const stage=document.createElement('div');stage.className='roulette-stage';stage.setAttribute('aria-label','人物選択ルーレット');
+const cards=roster.map(([key,name],i)=>{
+ const b=document.createElement('button');b.type='button';b.className='roulette-card';b.setAttribute('aria-label',name);
+ const pic=document.createElement('img');pic.src=images[key];pic.alt='';
+ const title=document.createElement('div');title.className='roulette-name';title.textContent=name;
+ b.append(pic,title);b.addEventListener('click',()=>{if(i===current)openSelected();else{current=i;render();}});stage.appendChild(b);return b;
+});
+const actions=document.createElement('div');actions.className='roulette-actions';
+const prev=document.createElement('button');prev.textContent='◀';prev.setAttribute('aria-label','前の人物');
+const confirm=document.createElement('button');confirm.textContent='この人物を見る';confirm.className='roulette-confirm';
+const next=document.createElement('button');next.textContent='▶';next.setAttribute('aria-label','次の人物');
+actions.append(prev,confirm,next);
+const position=document.createElement('div');position.className='roulette-position';
+overview.append(heading,stage,actions,position);
+function render(){
+ const w=stage.getBoundingClientRect().width;
+ const mobile=w<650;
+ cards.forEach((card,i)=>{
+   let d=(i-current+roster.length)%roster.length;if(d>roster.length/2)d-=roster.length;
+   const abs=Math.abs(d);
+   const dx=mobile?Math.min(w*.26,115):Math.min(w*.23,245);
+   const x=d*dx;
+   const y=abs* (mobile?10:15);
+   const scale=abs===0?1.30:abs===1?.68:abs===2?.46:.31;
+   const rotate=d===0?0:(d>0?-16:16);
+   card.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) rotateY(${rotate}deg) scale(${scale})`;
+   card.style.zIndex=String(100-abs);
+   card.style.opacity=abs<=2?'1':abs<=4?'.40':'0';
+   card.style.pointerEvents=abs<=2?'auto':'none';
+   card.classList.toggle('chosen',d===0);
+   card.setAttribute('aria-pressed',d===0?'true':'false');
+ });
+ position.textContent=roster[current][1]+'　'+(current+1)+' / '+roster.length;
+}
+function turn(delta){current=(current+delta+roster.length)%roster.length;render();}
+function openSelected(){
+ codex.classList.remove('overview-mode');codex.classList.add('detail-mode');
+ const button=nav.children[current];if(button)button.click();
+}
+prev.addEventListener('click',()=>turn(-1));next.addEventListener('click',()=>turn(1));confirm.addEventListener('click',openSelected);
+stage.addEventListener('touchstart',ev=>{if(ev.touches.length===1){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;}},{passive:true});
+stage.addEventListener('touchend',ev=>{if(sx===null||!ev.changedTouches.length)return;const dx=ev.changedTouches[0].clientX-sx,dy=ev.changedTouches[0].clientY-sy;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)){ev.preventDefault();ev.stopPropagation();turn(dx<0?1:-1);}sx=sy=null;},{passive:false,capture:true});
+let wheelTime=0;stage.addEventListener('wheel',ev=>{ev.preventDefault();if(Date.now()-wheelTime<340)return;wheelTime=Date.now();turn((Math.abs(ev.deltaX)>Math.abs(ev.deltaY)?ev.deltaX:ev.deltaY)>0?1:-1);},{passive:false});
+document.addEventListener('keydown',ev=>{if(codex.hidden||!codex.classList.contains('overview-mode'))return;if(ev.key==='ArrowLeft'){ev.preventDefault();ev.stopImmediatePropagation();turn(-1);}else if(ev.key==='ArrowRight'){ev.preventDefault();ev.stopImmediatePropagation();turn(1);}else if(ev.key==='Enter'){ev.preventDefault();ev.stopImmediatePropagation();openSelected();}},true);
+const resize=new ResizeObserver(render);resize.observe(stage);render();
+})();
+</script><script>
+// Reader font size: stored locally and applied to narrative and speech bubbles.
+let fontScale=1;
+try{fontScale=Number(localStorage.getItem('akatsuki_font_scale')||1);}catch(e){}
+fontScale=Math.min(1.35,Math.max(.8,Number.isFinite(fontScale)?fontScale:1));
+function updateFontScale(){
+  document.documentElement.style.setProperty('--reader-font-scale',fontScale.toFixed(2));
+  document.getElementById('fontSizeLabel').textContent=Math.round(fontScale*100)+'%';
+  try{localStorage.setItem('akatsuki_font_scale',String(fontScale));}catch(e){}
+  // Preserve the current text and phase; only reconcile page overflow.
+  if(typeof fitExistingNarrative==='function')fitExistingNarrative();
+}
+document.getElementById('fontSmaller').addEventListener('click',e=>{e.stopPropagation();fontScale=Math.max(.8,Math.round((fontScale-.1)*100)/100);updateFontScale();});
+document.getElementById('fontLarger').addEventListener('click',e=>{e.stopPropagation();fontScale=Math.min(1.35,Math.round((fontScale+.1)*100)/100);updateFontScale();});
+updateFontScale();
+</script>
+<script>
+(function(){
+  const chapterBadge=document.getElementById('chapterBadge');
+  const partyHud=document.getElementById('partyHud');
+  const allyMap={ieyasu:'allyIeyasu', ayame:'allyAyame', ofuu:'allyOfuu'};
+  function bindHudIcons(){
+    if(typeof images==='undefined') return;
+    Object.entries(allyMap).forEach(([key,id])=>{
+      const img=document.getElementById(id);
+      if(img && !img.src && images[key]) img.src=images[key];
+    });
+  }
+  bindHudIcons();
+  const headingIndexList=(typeof units!=='undefined')?units.map((u,i)=>u.kind==='h'?i:-1).filter(i=>i>=0):[];
+  function currentChapterText(index){
+    if(typeof units==='undefined' || !units.length) return '序章';
+    let heading='序章';
+    for(const i of headingIndexList){ if(i<=index) heading=units[i].text||heading; else break; }
+    return heading.split(/\s+/)[0] || heading;
+  }
+  function refreshTopStatus(){
+    const chap=currentChapterText(typeof idx==='number'?idx:0);
+    if(chapterBadge) chapterBadge.textContent=chap;
+    if(partyHud){
+      const show = /^第/.test(chap); // 第一章以降のみ表示
+      partyHud.hidden=!show;
+    }
+  }
+  refreshTopStatus();
+  const originalShowUnit=showUnit;
+  showUnit=function(rebuild=false){
+    const ret=originalShowUnit(rebuild);
+    refreshTopStatus();
+    return ret;
+  };
+  const originalGoTo=goTo;
+  goTo=function(target){
+    const ret=originalGoTo(target);
+    refreshTopStatus();
+    return ret;
+  };
+  const originalOpenTitle=typeof showTitleScreen==='function'?showTitleScreen:null;
+  if(originalOpenTitle){
+    showTitleScreen=function(){ const ret=originalOpenTitle(); refreshTopStatus(); return ret; };
+  }
+})();
+</script>
+
+
+<script id="v34-mobile-fix-js">
+(function(){
+  function normalizeViewport(){
+    window.scrollTo(0,0);
+    document.body.style.width='100%';
+    document.body.style.height='100%';
+    const st=document.getElementById('stage');
+    if(st){ st.style.width=window.innerWidth+'px'; st.style.height=window.innerHeight+'px'; }
+  }
+  window.addEventListener('resize', normalizeViewport, {passive:true});
+  window.addEventListener('orientationchange', ()=>setTimeout(normalizeViewport,120), {passive:true});
+  setTimeout(normalizeViewport, 60);
+})();
+</script>
+
+<script id="v35-mobile-ui-js">
+(function(){
+  function applyMobileLayoutClass(){
+    const w=window.innerWidth||document.documentElement.clientWidth;
+    const h=window.innerHeight||document.documentElement.clientHeight;
+    const portrait = h>=w;
+    const mobile = ((window.matchMedia && window.matchMedia('(pointer:coarse)').matches) || w<=950) && Math.min(w,h)<=900;
+    document.body.classList.remove('mobile-portrait','mobile-landscape');
+    if(mobile){
+      document.body.classList.add(portrait ? 'mobile-portrait' : 'mobile-landscape');
+    }
+    const st=document.getElementById('stage');
+    if(st){ st.style.width=w+'px'; st.style.height=h+'px'; }
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('resize', applyMobileLayoutClass, {passive:true});
+  window.addEventListener('orientationchange', ()=>setTimeout(applyMobileLayoutClass,180), {passive:true});
+  setTimeout(applyMobileLayoutClass,40);
+  setTimeout(applyMobileLayoutClass,280);
+})();
+</script>
+<div id="fsPrompt45" role="dialog" aria-label="全画面表示"><strong>横画面でプレイ</strong><p>画面いっぱいに表示すると、もっと快適に遊べます。</p><button type="button" id="fsEnter45">⛶ 全画面表示</button><button type="button" id="fsSkip45">通常表示で続ける</button></div><script id="fullscreen-controller-v45">
+(function(){
+ const prompt=document.getElementById('fsPrompt45');
+ const enter=document.getElementById('fsEnter45');
+ const skip=document.getElementById('fsSkip45');
+ const fullscreenTitleBtn=document.createElement('button');
+ fullscreenTitleBtn.id='fsTitle45';fullscreenTitleBtn.type='button';fullscreenTitleBtn.textContent='⛶ 全画面表示';
+ const titleMenu=document.querySelector('.title-menu');
+ /* v55: omit title fullscreen button; keep fullscreen request on Start. */
+ let begun=false, dismissedOrientation='', requestedAtStart=false;
+ function isPhone(){return /Android|iPhone|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints>1 && matchMedia('(pointer:coarse)').matches && Math.min(screen.width,screen.height)<920)}
+ function isLandscape(){return window.innerWidth>window.innerHeight}
+ function isFull(){return !!document.fullscreenElement}
+ function orient(){return isLandscape()?'landscape':'portrait'}
+ function syncSize(){
+   // Use Chrome's real visual viewport; never assume address-bar height is zero.
+   const stage=document.getElementById('stage');
+   if(stage && isPhone() && !isFull()){
+     stage.style.height=(window.visualViewport?window.visualViewport.height:window.innerHeight)+'px';
+   }else if(stage){stage.style.removeProperty('height')}
+   window.dispatchEvent(new Event('akatsuki-viewport-change'));
+ }
+ function showWhenNeeded(){
+   syncSize();
+   const need=isPhone() && begun && isLandscape() && !isFull() && dismissedOrientation!==orient();
+   prompt.classList.toggle('is-visible', need);
+ }
+ function requestFull(){
+   if(!isPhone() || isFull()){showWhenNeeded();return;}
+   // Call requestFullscreen immediately in the user gesture, before awaiting anything.
+   const target=document.getElementById('stage') || document.documentElement;
+   if(!target.requestFullscreen){showWhenNeeded();return}
+   let result;
+   try{result=target.requestFullscreen({navigationUI:'hide'});}catch(e){showWhenNeeded();return}
+   if(result && typeof result.then==='function')result.then(()=>{dismissedOrientation='';prompt.classList.remove('is-visible');syncSize()}).catch(()=>showWhenNeeded());
+ }
+ ['startStory','resumeStory'].forEach(id=>{
+   const button=document.getElementById(id);
+   if(!button)return;
+   button.addEventListener('click',function(){
+     begun=true; requestedAtStart=true;
+     if(isPhone())requestFull();
+     setTimeout(showWhenNeeded,500);
+   },{capture:true});
+ });
+ fullscreenTitleBtn.addEventListener('click',requestFull);
+ enter.addEventListener('click',()=>{requestFull();setTimeout(showWhenNeeded,420)});
+ skip.addEventListener('click',()=>{dismissedOrientation=orient();prompt.classList.remove('is-visible')});
+ document.addEventListener('fullscreenchange',()=>{if(isFull())dismissedOrientation='';setTimeout(showWhenNeeded,100)});
+ window.addEventListener('orientationchange',()=>{dismissedOrientation='';setTimeout(showWhenNeeded,250);setTimeout(showWhenNeeded,750)});
+ window.addEventListener('resize',()=>{setTimeout(showWhenNeeded,100)});
+ if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>{setTimeout(syncSize,80)});
+})();
+</script>
+<script id="v46-audio-lifecycle">
+(function(){
+  let pausedByBackground=false;
+  function suspendForBackground(){
+    if(typeof music==='undefined')return;
+    const wasPlaying=!music.paused && !music.ended;
+    if(wasPlaying) pausedByBackground=true;
+    // Cancel any music fade pending across tab/app backgrounding.
+    if(typeof fadeToken!=='undefined') ++fadeToken;
+    music.pause();
+  }
+  function resumeFromBackground(){
+    if(typeof music==='undefined'||!pausedByBackground)return;
+    pausedByBackground=false;
+    // Resume only music that was already playing before backgrounding.
+    // Avoid restarting a sound the player had intentionally stopped.
+    if(document.visibilityState==='visible'){
+      const attempt=music.play();
+      if(attempt&&typeof attempt.catch==='function')attempt.catch(()=>{});
+    }
+  }
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)suspendForBackground();
+    else resumeFromBackground();
+  });
+  window.addEventListener('pagehide',suspendForBackground);
+  window.addEventListener('pageshow',()=>{
+    if(document.visibilityState==='visible')resumeFromBackground();
+  });
+})();
+</script>
+<div id="cardViewer" hidden><div class="card-viewer-tools"><button type="button" id="cardViewerBack">← タイトルへ</button><button type="button" id="cardPrev">◀</button><span id="cardCounter">1 / 5</span><button type="button" id="cardNext">▶</button></div><div id="cardViewerBody"></div></div>
+<script id="v57-item-gallery">
+(function(){
+const keys=['soulvessel','foxmask','akatsuki','kotetsu','hien'];
+const titles=['黒い器','金色の狐面','妖刀・アカツキ','虎徹','飛燕'];
+let current=0,detail=false,startX=null,startY=null;
+const gallery=document.getElementById('cardViewer'),body=document.getElementById('cardViewerBody');
+const viewerBack=document.getElementById('cardViewerBack');
+const oldKeys=['kotetsu','hien'];
+function cardFace(key,name){
+ const wrap=document.createElement('div');wrap.className='item-roulette-face';
+ if(oldKeys.includes(key)){
+   const img=document.createElement('img');img.src=images[key];img.alt=name;wrap.append(img);
+ }else{
+   const card=document.createElement('div');card.className='item-roulette-composed';
+   const head=document.createElement('div');head.className='ic-title';
+   const nameNode=document.createElement('span');nameNode.textContent=name;
+   const type=document.createElement('span');type.className='ic-type';type.textContent=key==='akatsuki'?'武器':'重要';head.append(nameNode,type);
+   const stars=document.createElement('div');stars.className='ic-stars';stars.textContent='★★★★★';
+   const art=document.createElement('div');art.className='ic-art';const img=document.createElement('img');img.src=images[key];img.alt='';art.append(img);
+   const desc=document.createElement('div');desc.className='ic-desc';desc.textContent=cardDescriptions[key]||'';
+   card.append(head,stars,art,desc);wrap.append(card);
+ }
+ return wrap;
+}
+function render(){
+ body.replaceChildren();const heading=document.createElement('div');heading.className='item-roulette-heading';heading.textContent='左右に回してアイテムを選択';
+ const stage=document.createElement('div');stage.className='item-roulette-stage';
+ const tiles=keys.map((key,i)=>{const b=document.createElement('button');b.type='button';b.className='item-roulette-tile';b.setAttribute('aria-label',titles[i]);b.append(cardFace(key,titles[i]));stage.append(b);b.onclick=()=>{if(i===current)showDetail();else{current=i;update();}};return b;});
+ const actions=document.createElement('div');actions.className='item-roulette-actions';
+ const prev=document.createElement('button');prev.textContent='◀';prev.onclick=()=>turn(-1);
+ const select=document.createElement('button');select.textContent='このカードを見る';select.className='center';select.onclick=showDetail;
+ const next=document.createElement('button');next.textContent='▶';next.onclick=()=>turn(1);
+ actions.append(prev,select,next);const count=document.createElement('div');count.className='item-roulette-count';
+ body.append(heading,stage,actions,count);
+ function update(){
+   const w=stage.getBoundingClientRect().width;const mobile=w<650;const dx=mobile?Math.min(w*.29,128):Math.min(w*.23,265);
+   tiles.forEach((tile,i)=>{
+     let d=(i-current+keys.length)%keys.length;if(d>keys.length/2)d-=keys.length;
+     const abs=Math.abs(d),scale=abs===0?1.23:abs===1?.70:.43;
+     tile.style.transform=`translate(-50%,-50%) translate(${d*dx}px,${abs*9}px) rotateY(${d===0?0:d>0?-13:13}deg) scale(${scale})`;
+     tile.style.zIndex=String(100-abs);tile.style.opacity=abs===0?'1':abs===1?'.88':'.48';
+     tile.classList.toggle('active',abs===0);tile.setAttribute('aria-pressed',String(abs===0));
+   });
+   count.textContent=titles[current]+'　'+(current+1)+' / '+keys.length;
+ }
+ function turn(delta){current=(current+delta+keys.length)%keys.length;update();}
+ stage.addEventListener('touchstart',e=>{if(e.touches.length===1){startX=e.touches[0].clientX;startY=e.touches[0].clientY;}},{passive:true});
+ stage.addEventListener('touchend',e=>{if(startX===null||!e.changedTouches.length)return;const x=e.changedTouches[0].clientX-startX,y=e.changedTouches[0].clientY-startY;startX=startY=null;if(Math.abs(x)>36&&Math.abs(x)>Math.abs(y)*1.2){e.preventDefault();turn(x<0?1:-1);}},{passive:false,capture:true});
+ stage.addEventListener('wheel',e=>{e.preventDefault();turn((Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)>0?1:-1);},{passive:false});
+ update();
+}
+function showDetail(){if(detail)return;detail=true;const overlay=document.createElement('div');overlay.className='item-roulette-detail';const face=cardFace(keys[current],titles[current]);overlay.append(face);const close=document.createElement('button');close.className='close';close.textContent='一覧へ戻る';close.onclick=()=>{overlay.remove();detail=false;};overlay.append(close);body.append(overlay);}
+function closeGallery(){detail=false;gallery.hidden=true;}
+document.getElementById('itemGalleryOpen').addEventListener('click',()=>{current=0;detail=false;gallery.hidden=false;render();});
+viewerBack.addEventListener('click',closeGallery);
+document.addEventListener('keydown',e=>{if(gallery.hidden)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();if(detail){body.querySelector('.item-roulette-detail')?.remove();detail=false;}else closeGallery();}else if(!detail&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();e.stopImmediatePropagation();current=(current+(e.key==='ArrowRight'?1:-1)+keys.length)%keys.length;render();}else if(!detail&&e.key==='Enter'){e.preventDefault();e.stopImmediatePropagation();showDetail();}},true);
+})();
+</script>
+
+<script id="v69-portrait-only">
+(function(){
+ const notice=document.getElementById('portraitOnlyNotice');
+ if(!notice)return;
+ const mobileUA=/Android|iPhone|iPod|Mobile/i.test(navigator.userAgent||'') || Boolean(navigator.userAgentData?.mobile);
+ function isPhone(){
+   const touch=window.matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints>0;
+   const shortSide=Math.min(screen.width||innerWidth,screen.height||innerHeight);
+   return mobileUA || (touch && shortSide<=700);
+ }
+ function refresh(){
+   const sideways=innerWidth>innerHeight || window.matchMedia('(orientation:landscape)').matches;
+   const block=Boolean(isPhone() && sideways);
+   notice.classList.toggle('is-visible',block);
+   notice.setAttribute('aria-hidden',String(!block));
+   notice.style.setProperty('display',block?'flex':'none','important');
+   document.documentElement.classList.toggle('phone-landscape-blocked',block);
+ }
+ document.addEventListener('keydown',e=>{if(notice.classList.contains('is-visible')){e.preventDefault();e.stopImmediatePropagation();}},true);
+ notice.addEventListener('click',e=>e.stopPropagation(),true);
+ window.addEventListener('resize',refresh,{passive:true});
+ window.addEventListener('orientationchange',()=>{refresh();requestAnimationFrame(refresh);setTimeout(refresh,300);},{passive:true});
+ window.visualViewport?.addEventListener('resize',refresh,{passive:true});
+ screen.orientation?.addEventListener('change',refresh);
+ document.addEventListener('fullscreenchange',refresh);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+ refresh();setTimeout(refresh,150);
+})();
+</script>
+
+
+
+
+<script id="v67-title-carousel-behavior">
+(function(){
+ const menu=document.querySelector('#titleScreen .title-menu');
+ if(!menu)return;
+ const buttons=Array.from(menu.children).filter(el=>el.tagName==='BUTTON');
+ if(!buttons.length)return;
+ let selected=0;
+ const tools=document.createElement('div');tools.className='title-carousel-tools';
+ const prev=document.createElement('button');prev.type='button';prev.textContent='◀';prev.setAttribute('aria-label','前の項目');
+ const confirm=document.createElement('button');confirm.type='button';confirm.className='title-carousel-confirm';confirm.textContent='決定';
+ const next=document.createElement('button');next.type='button';next.textContent='▶';next.setAttribute('aria-label','次の項目');
+ tools.append(prev,confirm,next);
+ const hint=document.createElement('div');hint.className='title-carousel-help';hint.textContent='左右にスワイプして選択';
+ menu.insertAdjacentElement('afterend',tools);tools.insertAdjacentElement('afterend',hint);
+ function render(){
+  const width=menu.getBoundingClientRect().width||360;
+  buttons.forEach((b,i)=>{
+   let d=(i-selected+buttons.length)%buttons.length;
+   if(d>buttons.length/2)d-=buttons.length;
+   const a=Math.abs(d);
+   const dx=Math.min(width*.34,190);
+   b.style.transform='translate(-50%,-50%) translateX('+d*dx+'px) translateY('+a*8+'px) rotateY('+(d>0?-19:d<0?19:0)+'deg) scale('+(a===0?1.12:a===1?.72:.45)+')';
+   b.style.opacity=a<=1?'1':a===2?'.24':'0';
+   b.style.zIndex=String(20-a);
+   b.style.pointerEvents=a===0?'auto':'none';
+   b.classList.toggle('roulette-selected',d===0);
+   b.setAttribute('aria-selected',d===0?'true':'false');
+  });
+ }
+ function rotate(delta){selected=(selected+delta+buttons.length)%buttons.length;render();}
+ prev.addEventListener('click',()=>rotate(-1));next.addEventListener('click',()=>rotate(1));
+ confirm.addEventListener('click',()=>buttons[selected].click());
+ let startX=0,startY=0;
+ menu.addEventListener('touchstart',e=>{if(e.touches.length===1){startX=e.touches[0].clientX;startY=e.touches[0].clientY;}},{passive:true});
+ menu.addEventListener('touchend',e=>{
+   if(!e.changedTouches.length)return;
+   const dx=e.changedTouches[0].clientX-startX,dy=e.changedTouches[0].clientY-startY;
+   if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.15)rotate(dx<0?1:-1);
+ },{passive:true});
+ menu.addEventListener('wheel',e=>{if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){e.preventDefault();rotate(e.deltaX>0?1:-1);}},{passive:false});
+ buttons.forEach((b,i)=>b.addEventListener('click',()=>{if(i!==selected){selected=i;render();}},true));
+ window.addEventListener('resize',render);
+ render();
+})();
+</script>
+</body></html>
