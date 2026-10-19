@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>暁ノ刃｜第一章 伊賀越え</title>
+<link rel="stylesheet" href="story.css">
+</head>
+<body>
+<main id="storyBattle">
+  <header class="chapter-header">
+    <img class="logo" src="../assets/002_ea8d61170.png" alt="暁ノ刃">
+    <div class="chapter-title"><small>第一章　伊賀越え</small><h1>守るべきもの</h1></div>
+    <button id="returnReader" disabled type="button">中断して戻る</button>
+  </header>
+  <section class="scene" aria-label="山道で家康を守る半蔵とあやめ">
+    <div class="cast" aria-hidden="true">
+      <img class="character ieyasu" data-character="ieyasu" src="../assets/011_bb37a6d74.webp" alt="">
+      <img class="character hanzo" data-character="hanzo" src="../assets/017_cd2e8e5c5.webp" alt="">
+      <img class="character ayame" data-character="ayame" src="../assets/015_a9631a15d.webp" alt="">
+    </div>
+    <div id="sceneFx" aria-hidden="true"></div>
+    <div class="scene-copy" aria-live="polite" aria-atomic="true">
+      <p id="speaker" class="speaker">山道</p>
+      <p id="sceneText">左右の茂みから、十を超える男たちが飛び出す。<br>家康へ迫る刃を前に、半蔵とあやめが動いた。</p>
+    </div>
+  </section>
+  <section class="story-controls" aria-label="物語を進める">
+    <div class="objective"><small>この戦いの目的</small><p>家康を守り、道を開く</p><ol aria-label="戦いの流れ"><li id="beat0" aria-current="step">守る</li><li id="beat1">連携する</li><li id="beat2">押し返す</li></ol></div>
+    <div class="action-area"><p id="actionHint">半蔵の一歩で、物語が動く。</p><button id="storyAction" disabled type="button">家康の前に立つ <span aria-hidden="true">〉</span></button><button id="readOnly" disabled class="text-button" type="button">操作せずに読む</button><button id="finishBattle" type="button" hidden>物語の続きへ <span aria-hidden="true">〉</span></button></div>
+  </section>
+  <section id="readingSummary" class="reading-summary" aria-label="戦いの物語" hidden></section>
+</main>
+<script src="story.js"></script>
+</body>
+</html>
