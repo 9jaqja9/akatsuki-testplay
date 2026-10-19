@@ -37,32 +37,45 @@ button:focus-visible, .scene:focus-visible { outline: 3px solid #b5efff; outline
 .yukihime { left: 94%; bottom: 12%; }
 .rear-label { display: block; color: #d9cbaf; font-size: 13px; text-align: center; }
 
-.bottom-panel { display: grid; grid-template-columns: minmax(160px, 16%) minmax(0, 1fr) minmax(180px, 17%); background: linear-gradient(120deg,#18212b,#080e16 65%); padding: 12px; gap: 10px; border-top: 1px solid var(--gold); }
-.stage-direction { grid-column: 1 / -1; margin: 0; padding: 0 8px 5px; color: #d9ceb8; font-size: 18px; line-height: 1.65; }
-.commands, .dialogue, .chapter-panel { border: 1px solid #8e805f; box-shadow: inset 0 0 0 3px #111921, inset 0 0 25px #090c12; min-width: 0; padding: 18px; }
+.bottom-panel { display: grid; grid-template-columns: minmax(265px, 22%) minmax(0, 1fr); background: linear-gradient(120deg,#18212b,#080e16 65%); padding: 12px; gap: 10px; border-top: 1px solid var(--gold); }
+.stage-direction { margin: 0; color: #d9ceb8; font-size: 18px; line-height: 1.65; }
+.commands, .dialogue { border: 1px solid #8e805f; box-shadow: inset 0 0 0 3px #111921, inset 0 0 25px #090c12; min-width: 0; padding: 18px; }
 .commands p { margin: 0 0 14px; font-size: 17px; color: #d6c6a1; letter-spacing: .15em; }
-.command-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.commands button, .utilities button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-width: 0; border: 1px solid #8e805f; background: linear-gradient(#1b2c3b,#101a26); }
+.command-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.commands button, .dialogue-footer button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-width: 0; border: 1px solid #8e805f; background: linear-gradient(#1b2c3b,#101a26); }
 .commands button { min-height: 105px; padding: 10px 5px; font-size: 17px; }
 .commands button:first-child { border-color: #62bdde; background: linear-gradient(120deg,#16435a,#183143); box-shadow: inset 0 0 12px #62d5ff55,0 0 9px #319cca44; }
-.commands button:hover, .utilities button:hover { background: #284455; }
+.commands button:hover, .dialogue-footer button:hover { background: #284455; }
 .commands svg { width: 43px; height: 43px; }
-.commands svg, .utilities svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.commands svg, .dialogue-footer svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 .commands .icon-fill { fill: currentColor; stroke-width: 1; }
-.dialogue { display: flex; position: relative; align-items: center; gap: 26px; padding: 24px 28px 32px; min-height: 310px; }
+.dialogue { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 20px 26px; padding: 24px 28px 18px; min-height: 310px; }
 .dialogue img { width: clamp(150px,13vw,220px); height: clamp(170px,14vw,235px); object-fit: cover; object-position: center top; border: 1px solid #bc9a63; flex-shrink: 0; }
 .dialogue-copy { flex: 1; min-width: 0; }
 #speaker { font-size: 28px; letter-spacing: .18em; margin: 0 0 14px; color: #e8cea2; }
 #line { font-size: clamp(26px,2.1vw,36px); line-height: 1.8; margin: 0; min-height: 3.6em; overflow-wrap: anywhere; }
-#lineCount { position: absolute; bottom: 12px; right: 18px; font-size: 15px; color: #c9bda6; letter-spacing: .1em; }
-.chapter-panel { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px 12px; }
-.chapter-panel > p:first-child { font-size: 21px; letter-spacing: .1em; margin: 0 0 8px; }
-#status { font-size: 16px; color: #c2dfec; }
-.ornament { color: #b79c67; font-size: 15px; margin: 10px 0; }
-.purpose { font-size: 18px; line-height: 1.8; color: #e2d8c5; margin: 0 0 15px; }
-.utilities { display: flex; width: 100%; gap: 8px; }
-.utilities button { flex: 1; min-height: 82px; padding: 8px 4px; font-size: 14px; }
-.utilities svg { width: 30px; height: 30px; }
+#lineCount { margin-left: auto; font-size: 15px; color: #c9bda6; letter-spacing: .1em; white-space: nowrap; }
+.battle-info { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(440px,50%) minmax(0,1fr); align-items: center; gap: 22px; }
+.party-status { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.member-status { padding: 9px 12px; border: 1px solid #7b735955; background: #0b1523d9; }
+.member-status h2 { font-size: 18px; font-weight: 500; margin: 0 0 5px; letter-spacing: .12em; }
+.resource { display: grid; grid-template-columns: 22px minmax(0,1fr) 86px; align-items: center; gap: 6px; font: 14px/1.6 system-ui,sans-serif; }
+.resource output { font-variant-numeric: tabular-nums; text-align: right; font-size: 14px; }
+.resource progress { appearance: none; width: 100%; height: 9px; border: 0; border-radius: 8px; overflow: hidden; background: #27313e; }
+.resource progress::-webkit-progress-bar { background: #27313e; }
+.resource.hp { color: #a9e5be; }
+.resource.mp { color: #a9d4ff; }
+.hp progress::-webkit-progress-value { background: linear-gradient(90deg,#419d6c,#afe6bb); }
+.mp progress::-webkit-progress-value { background: linear-gradient(90deg,#3b80c3,#a8d4ff); }
+.hp progress::-moz-progress-bar { background: #77c593; }
+.mp progress::-moz-progress-bar { background: #81baff; }
+#status { margin: 7px 0 0; font-size: 16px; color: #c2dfec; }
+.dialogue-footer { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.dialogue-tools { display: flex; gap: 8px; }
+.dialogue-footer button { flex-direction: row; min-height: 48px; padding: 8px 12px; font-size: 15px; gap: 7px; }
+.dialogue-footer svg { width: 25px; height: 25px; }
+.dialogue-footer #nextLine { min-width: 140px; min-height: 56px; border-color: #62bdde; background: linear-gradient(120deg,#16435a,#183143); font-size: 20px; }
+.dialogue-footer .icon-fill { fill: currentColor; }
 .note { max-width: 1672px; margin: 12px auto; color: #a4a9b3; font: 12px/1.8 system-ui,sans-serif; }
 dialog { background: #0c1420; color: #eee4cd; border: 1px solid #aa9469; max-width: min(1100px,94vw); max-height: 88dvh; padding: 28px; overflow: auto; }
 dialog::backdrop { background: #000b; }
@@ -73,12 +86,7 @@ dialog button { background: #202c3b; border: 1px solid #a88f63; padding: 12px 28
 #logEntries strong { display: block; color: #ddc18d; font-size: 20px; }
 
 @media (max-width: 1200px) {
-  .bottom-panel { grid-template-columns: 150px minmax(0,1fr); }
-  .chapter-panel { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; gap: 15px; padding: 10px 16px; }
-  .chapter-panel > p:first-child { font-size: 18px; margin: 0; }
-  .chapter-panel .purpose, .chapter-panel .ornament { display: none; }
-  .utilities { width: auto; }
-  .utilities button { min-width: 82px; min-height: 64px; }
+  .bottom-panel { grid-template-columns: 250px minmax(0,1fr); }
   .dialogue { gap: 20px; padding-inline: 20px; }
   .dialogue img { width: 150px; height: 180px; }
 }
@@ -89,6 +97,7 @@ dialog button { background: #202c3b; border: 1px solid #a88f63; padding: 12px 28
   .brand span { font-size: 25px; }
   .reference-label { font-size: 10px; padding: 5px 7px; }
   .scene { height: 390px; }
+  .battle-info { grid-template-columns: 1fr; gap: 12px; }
   .dialogue { min-height: 300px; }
   #line { font-size: 27px; }
 }
@@ -103,18 +112,26 @@ dialog button { background: #202c3b; border: 1px solid #a88f63; padding: 12px 28
   .stage-direction { font-size: 16px; padding-inline: 4px; }
   .commands { padding: 10px; }
   .commands p { font-size: 14px; margin-bottom: 8px; }
-  .command-grid { grid-template-columns: repeat(4,1fr); gap: 7px; }
+  .command-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
   .commands button { min-height: 83px; font-size: 14px; }
   .commands svg { width: 35px; height: 35px; }
   .dialogue { padding: 18px 14px 36px; gap: 14px; align-items: flex-start; min-height: 280px; }
   .dialogue img { width: 90px; height: 110px; }
   #speaker { font-size: 23px; margin-bottom: 10px; }
   #line { font-size: 24px; line-height: 1.8; }
-  .chapter-panel { flex-wrap: wrap; gap: 10px; padding: 12px; }
-  .chapter-panel > p:first-child { font-size: 17px; }
+  .member-status { padding: 8px; }
+  .member-status h2 { font-size: 16px; }
+  .party-status { gap: 6px; }
+  .resource { grid-template-columns: 20px minmax(0,1fr); gap: 2px 3px; font-size: 12px; margin-top: 3px; }
+  .resource output { grid-column: 2; grid-row: 1; font-size: 12px; }
+  .resource progress { grid-column: 1 / -1; grid-row: 2; height: 7px; }
+  .dialogue-footer { gap: 10px; }
+  .dialogue-tools { gap: 5px; }
+  .dialogue-tools button { padding: 7px; }
+  .dialogue-tools button span { display: none; }
+  .dialogue-tools button { width: 44px; min-height: 44px; }
+  .dialogue-footer #nextLine { min-width: 120px; }
   #status { font-size: 14px; }
-  .utilities { width: 100%; }
-  .utilities button { min-height: 64px; flex-direction: row; gap: 10px; font-size: 16px; }
   .note { font-size: 11px; }
   dialog { padding: 20px; }
   #logEntries p { font-size: 23px; }
