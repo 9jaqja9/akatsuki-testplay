@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>暁ノ刃｜墨と金のUI案</title>
+  <link rel="stylesheet" href="battle-reference.css">
+  <link rel="stylesheet" href="battle-ink.css">
+</head>
+<body>
+  <main class="screen">
+    <header class="masthead"><div class="brand">暁<span>ノ</span>刃<small>A K A T S U K I</small></div><div class="chapter"><small>第一章　伊賀越え</small><h1>山道の襲撃</h1></div><span class="reference-label">墨と金のUI案</span></header>
+    <section class="scene" aria-label="横スクロール戦闘の参考画面。狭い画面では左右にスクロールできます" tabindex="0">
+      <div class="world">
+        <div class="battle-art">
+        <img class="stage-image" src="../assets/battle-reference/stage.png" alt="伊賀の山中での戦い。画面中央を境に、左半分はあやめ・家康・半蔵、右半分は忍び3人・左馬之助・後方の雪姫。飛燕は前版の約半分、人物の縮尺を統一。">
+        <canvas id="fx" width="1672" height="941" aria-hidden="true"></canvas>
+        </div>
+        <div class="deployment-center" aria-hidden="true"></div>
+        <span class="actor ally ayame" data-name="あやめ">あやめ</span>
+        <span class="actor ally ieyasu" data-name="家康">家康</span>
+        <span class="actor ally hanzo" data-name="半蔵">半蔵</span>
+      </div>
+    </section>
+    <section class="bottom-panel" aria-label="会話と演出の操作">
+      <div class="battle-info">
+        <section class="party-status" aria-label="味方のHPとMP">
+          <div class="member-status" data-member="ayame"><h2>あやめ</h2>
+            <div class="resource hp"><span>HP</span><progress data-resource="hp" aria-label="あやめのHP" value="820" max="1000"></progress><output data-number="hp">820 / 1000</output></div>
+            <div class="resource mp"><span>MP</span><progress data-resource="mp" aria-label="あやめのMP" value="60" max="80"></progress><output data-number="mp">60 / 80</output></div>
+          </div>
+          <div class="member-status" data-member="ieyasu"><h2>家康</h2>
+            <div class="resource hp"><span>HP</span><progress data-resource="hp" aria-label="家康のHP" value="1100" max="1200"></progress><output data-number="hp">1100 / 1200</output></div>
+            <div class="resource mp"><span>MP</span><progress data-resource="mp" aria-label="家康のMP" value="24" max="40"></progress><output data-number="mp">24 / 40</output></div>
+          </div>
+          <div class="member-status" data-member="hanzo"><h2>半蔵</h2>
+            <div class="resource hp"><span>HP</span><progress data-resource="hp" aria-label="半蔵のHP" value="960" max="1200"></progress><output data-number="hp">960 / 1200</output></div>
+            <div class="resource mp"><span>MP</span><progress data-resource="mp" aria-label="半蔵のMP" value="70" max="100"></progress><output data-number="mp">70 / 100</output></div>
+          </div>
+        </section>
+        <section class="enemy-roster" aria-label="敵の名前">
+          <span class="actor enemy mob" data-name="忍び" data-stage-x="0.7">忍び<span class="enemy-count">×3</span></span>
+          <span class="actor enemy samanosuke" data-name="左馬之助" data-stage-x="0.87">左馬之助</span>
+          <span class="actor enemy yukihime" data-name="雪姫" data-stage-x="0.94">雪姫<span class="rear-label">後方</span></span>
+        </section>
+      </div>
+      <nav class="commands" aria-label="戦闘コマンド"><p>コマンド</p><div class="command-grid">
+        <button id="playClash" type="button" aria-label="半蔵の斬撃" title="半蔵の斬撃"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m8 25 17-18 3-3-1 6L11 27M5 22l8 7M4 29l4-4M9 5l15 20M5 4l3 6M20 26l7-6M25 26l3 3"/></svg><span>斬撃</span></button>
+        <button id="playHien" type="button" aria-label="あやめの飛燕・MP6消費" title="あやめの飛燕・MP6消費"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 12C9 10 8 5 11 2c1 5 5 5 9 7M20 16c2-7 7-8 10-5-5 1-5 5-7 9M16 20c7 2 8 7 5 10-1-5-5-5-9-7M12 16c-2 7-7 8-10 5 5-1 5-5 7-9"/><circle cx="16" cy="16" r="4"/></svg><span>飛燕</span></button>
+        <button id="playThunder" type="button" aria-label="半蔵の雷忍術・MP10消費" title="半蔵の雷忍術・MP10消費"><svg viewBox="0 0 32 32" aria-hidden="true"><path class="icon-fill" d="M18 3 7 18h8l-2 11 12-17h-9Z"/></svg><span>忍術</span></button>
+        <button id="playGuard" type="button" aria-label="半蔵が家康を守る" title="半蔵が家康を守る"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 11 4v9c0 7-11 13-11 13S5 23 5 16V7Z"/><path d="m10 15 4 4 8-9"/></svg><span>守る</span></button>
+        <button id="playHeal" type="button" aria-label="回復薬・味方全員のHPとMPを回復" title="回復薬・味方全員のHPとMPを回復"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 3h8v6l5 7v11H7V16l5-7ZM11 7h10M8 17h16M16 20v5M13.5 22.5h5"/></svg><span>回復</span></button>
+        <button id="playCombo" type="button" aria-label="半蔵とあやめの連携・それぞれMP8消費" title="半蔵とあやめの連携・それぞれMP8消費"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m4 24 13-13 7-7 4 1-1 4-7 7L7 29M5 22l6 6M5 7l8 8M3 4l4 2M18 23l7 5M24 19l4 6"/><path d="m20 3 1-2M29 13l2 1"/></svg><span>連携</span></button>
+      </div><p id="status" role="status">準備完了</p></nav>
+      <div class="dialogue"><img id="face" src="../assets/017_cd2e8e5c5.webp" alt="半蔵の顔"><div class="dialogue-copy" aria-live="polite" aria-atomic="true"><p id="speaker">半蔵</p><p id="line">「殿、俺の後ろへ。<br>……あやめ、前の忍びを押さえるぞ。」</p></div>
+        <footer class="dialogue-footer"><div class="dialogue-tools">
+          <button id="showLog" type="button" aria-label="会話ログを開く" title="会話ログを開く"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4h21v23H7M4 8h3M4 14h3M4 20h3M12 10h10M12 15h10M12 20h7"/></svg><span>ログ</span></button>
+          <button id="resetScene" type="button" aria-label="最初の配置とHP・MPに戻す" title="最初の配置とHP・MPに戻す"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 11a11 11 0 1 1-1 10M7 4v8h8"/></svg><span>戻す</span></button>
+          <button id="showTemplate" type="button" aria-label="元の戦闘画面を見る" title="元の戦闘画面を見る"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 5h24v22H4Z"/><circle cx="11" cy="12" r="2"/><path d="m5 24 8-8 5 5 4-5 5 8"/></svg><span>元の絵</span></button>
+        </div><span id="lineCount">01 / 05</span><button id="nextLine" type="button" aria-label="次の会話へ" title="次の会話へ"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 5h22v16H14l-7 6v-6H5Z"/><path class="icon-fill" d="m13 10 8 4-8 4Z"/></svg><span class="command-label">会話</span></button></footer>
+      </div>
+    </section>
+  </main>
+  <p class="note">墨色の帯・細い金縁・紋章コマンドを合わせた参考案です。HP・MPは表示確認用の仮数値です。</p>
+  <dialog id="logDialog"><h2>会話ログ</h2><div id="logEntries"></div><button type="button" data-close>閉じる</button></dialog>
+  <dialog id="templateDialog"><h2>いただいた戦闘テンプレート（v9）</h2><img src="../assets/battle-v9/stage.png" alt="元の戦闘テンプレート。上部に戦場、下部にコマンドと顔アイコン付き会話欄"><button type="button" data-close>閉じる</button></dialog>
+  <script src="battle-effects.js"></script>
+  <script src="battle-reference.js"></script>
+  <script src="battle-ink.js"></script>
+</body>
+</html>
