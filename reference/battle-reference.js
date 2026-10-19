@@ -14,6 +14,7 @@
     void $('.screen').offsetWidth;
     $('.screen').classList.add('clashing');
     effectTimer=setTimeout(()=>$('.screen').classList.remove('clashing'),950);
+    window.akatsukiReferenceEffects.run('slash');
     const scene=$('.scene');
     if(scene.scrollWidth>scene.clientWidth) scene.scrollTo({left:scene.scrollWidth*.43-scene.clientWidth/2,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   }
@@ -35,7 +36,8 @@
   }
   $('#nextLine').addEventListener('click',()=>{index=(index+1)%lines.length;seen=Math.max(seen,index);render()});
   $('#playClash').addEventListener('click',clash);
-  $('#resetScene').addEventListener('click',()=>{clearTimeout(effectTimer);$('.screen').classList.remove('clashing');index=0;seen=0;render();$('.scene').scrollLeft=0});
+  $('#playThunder').addEventListener('click',()=>window.akatsukiReferenceEffects.run('thunder'));
+  $('#resetScene').addEventListener('click',()=>{clearTimeout(effectTimer);$('.screen').classList.remove('clashing');window.akatsukiReferenceEffects.clear();index=0;seen=0;render();$('.scene').scrollLeft=0});
   $('#showLog').addEventListener('click',()=>{
     $('#logEntries').replaceChildren();
     lines.slice(0,seen+1).forEach(line=>{const p=document.createElement('p'),who=document.createElement('strong');who.textContent=line.who;p.append(who,document.createTextNode(line.text));$('#logEntries').append(p)});
