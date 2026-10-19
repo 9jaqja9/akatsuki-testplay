@@ -20,11 +20,12 @@ button:focus-visible,.scene:focus-visible{outline:2px solid #b5efff;outline-offs
 
 .actor{position:absolute;bottom:6%;transform:translateX(-50%);padding:4px 12px;color:#fff1d7;background:linear-gradient(90deg,transparent,#07101cbb,transparent);font-size:18px;letter-spacing:.1em;text-shadow:0 2px 5px #000;white-space:nowrap}
 
-.hanzo{left:19%}
-.ayame{left:32%}
-.ninja-one{left:51%}
-.ninja-two{left:62%}
-.ninja-three{left:71%}
+.ayame{left:16%}
+.ieyasu{left:30%}
+.hanzo{left:46%}
+.ninja-one{left:60%}
+.ninja-two{left:68%}
+.ninja-three{left:74%}
 .samanosuke{left:84%}
 .yukihime{left:94%;bottom:14%}
 .rear-label{display:block;color:#d9cbaf;font-size:11px;text-align:center}

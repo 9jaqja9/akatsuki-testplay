@@ -1,8 +1,8 @@
 (() => {
   const $ = selector => document.querySelector(selector);
   const lines = [
-    {who:'半蔵', face:'017_cd2e8e5c5.webp', text:'「殿、俺の後ろへ。\n……あやめ、前の忍びを押さえるぞ。」', direction:'忍びが前に出る。左馬之助はその奥、雪姫はさらに後方で戦況を見ている。'},
-    {who:'あやめ', face:'015_a9631a15d.webp', text:'「分かった！\n家康様には近づけさせないよ！」', direction:'半蔵とあやめが、家康の前へ出る。', clash:true},
+    {who:'半蔵', face:'017_cd2e8e5c5.webp', text:'「殿、俺の後ろへ。\n……あやめ、前の忍びを押さえるぞ。」', direction:'伊賀の山道。あやめと半蔵が家康を守り、道を塞ぐ忍びたちと対峙する。'},
+    {who:'あやめ', face:'015_a9631a15d.webp', text:'「飛燕――！\n家康様には近づけさせないよ！」', direction:'あやめが巨大手裏剣・飛燕を構え、半蔵が忍びの刃を受け止める。', clash:true},
     {who:'左馬之助', face:'012_f81fdb814.webp', text:'「そこまでだ。\n徳川家康殿、御身を預からせていただく。」', direction:'忍びたちの背後で、左馬之助が静かに口を開く。'},
     {who:'雪姫', face:'016_e2b459444.webp', text:'「待って。家康様を捕らえるなんて、\n私は聞いていない……。」', direction:'後方に控えていた雪姫が、左馬之助へ問い掛ける。'},
     {who:'半蔵', face:'017_cd2e8e5c5.webp', text:'「……雪姫。\nなぜ、お前がそこにいる。」', direction:'刃の向こうで、半蔵と雪姫の視線が交わる。'}
@@ -16,7 +16,7 @@
     effectTimer=setTimeout(()=>$('.screen').classList.remove('clashing'),950);
     window.akatsukiReferenceEffects.run('slash');
     const scene=$('.scene');
-    if(scene.scrollWidth>scene.clientWidth) scene.scrollTo({left:scene.scrollWidth*.43-scene.clientWidth/2,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    if(scene.scrollWidth>scene.clientWidth) scene.scrollTo({left:scene.scrollWidth*.56-scene.clientWidth/2,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   }
   function render(){
     const line=lines[index];
