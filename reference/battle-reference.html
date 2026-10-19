@@ -11,7 +11,8 @@
     <header class="masthead"><div class="brand">暁<span>ノ</span>刃<small>A K A T S U K I</small></div><div class="chapter"><small>第一章　伊賀越え</small><h1>山道の襲撃</h1></div><span class="reference-label">配置・演出の参考画面</span></header>
     <section class="scene" aria-label="横スクロール戦闘の参考画面。狭い画面では左右にスクロールできます" tabindex="0">
       <div class="world">
-        <img class="stage-image" src="../assets/battle-reference/stage.png" alt="伊賀の山中での戦い。左から巨大手裏剣・飛燕を構えるあやめ、家康、半蔵。敵側は忍び3人、左馬之助と後方の雪姫。">
+        <img class="stage-image" src="../assets/battle-reference/stage.png" alt="伊賀の山中での戦い。画面中央を境に、左半分はあやめ・家康・半蔵、右半分は忍び3人・左馬之助・後方の雪姫。飛燕は前版の約半分、人物の縮尺を統一。">
+        <div class="deployment-center" aria-hidden="true"></div>
         <span class="actor ayame" data-name="あやめ">あやめ</span>
         <span class="actor ieyasu" data-name="家康">家康</span>
         <span class="actor hanzo" data-name="半蔵">半蔵</span>
@@ -30,7 +31,7 @@
       <aside class="chapter-panel"><p>第一章　伊賀越え</p><span id="status" role="status">準備完了</span><div class="ornament">◆ ━━━━━ ◆</div><p class="purpose">刃を交えながら、<br>会話で物語を見せる。</p><div class="utilities"><button id="showLog" type="button">▤ LOG</button><button id="showTemplate" type="button">元の画面</button></div></aside>
     </section>
   </main>
-  <p class="note">battle収録絵を元に、背景を伊賀の山中へ変更した参考画面です。味方は左からあやめ・家康・半蔵。あやめの巨大手裏剣「飛燕」は収録の武器データを参照しています。狭い画面では戦場を左右に動かせます。</p>
+  <p class="note">中央の細いガイド線を境に、味方は左半分、敵は右半分に配置。人物の縮尺をそろえ、飛燕を前版の約半分に調整しています。狭い画面では戦場を左右に動かせます。</p>
   <dialog id="logDialog"><h2>会話ログ</h2><div id="logEntries"></div><button type="button" data-close>閉じる</button></dialog>
   <dialog id="templateDialog"><h2>いただいた戦闘テンプレート（v9）</h2><img src="../assets/battle-v9/stage.png" alt="元の戦闘テンプレート。上部に戦場、下部にコマンドと顔アイコン付き会話欄"><button type="button" data-close>閉じる</button></dialog>
   <script src="battle-effects.js"></script>
