@@ -27,7 +27,10 @@
     $('#face').alt=line.who+'の顔';
     $('#lineCount').textContent=String(index+1).padStart(2,'0')+' / 05';
     $('.stage-direction').textContent=line.direction;
-    $('#nextLine').textContent=index===lines.length-1?'❯　最初の会話へ':'❯　会話を進める';
+    const nextLabel=index===lines.length-1?'最初の会話へ':'次の会話へ';
+    $('#nextLine .command-label').textContent=index===lines.length-1?'最初へ':'会話';
+    $('#nextLine').setAttribute('aria-label',nextLabel);
+    $('#nextLine').title=nextLabel;
     if(line.clash)clash();
     else if($('.scene').scrollWidth>$('.scene').clientWidth){
       const actor=document.querySelector('[data-name="'+line.who+'"]');
