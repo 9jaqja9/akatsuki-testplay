@@ -1,0 +1,49 @@
+html { color-scheme: dark; }
+body { background: #080a11; }
+.battle-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 48px; padding: 7px max(14px, env(safe-area-inset-right)) 7px max(14px, env(safe-area-inset-left));
+  border-bottom: 1px solid #b99a58; color: #e3c38b; background: #080a11;
+  font-size: 14px;
+}
+.battle-toolbar button { padding: 6px 18px; text-align: center; }
+#app { min-height: 100dvh; }
+.stage { height: min(53.3vw, 60dvh); min-height: 0; flex-shrink: 0; }
+.panel { flex: 1 0 auto; }
+button { touch-action: manipulation; }
+button:focus-visible { outline: 2px solid #ffe4a3; outline-offset: 3px; }
+.end-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.end { overflow-y: auto; }
+.end strong { font-size: clamp(22px, 3.5vw, 40px); }
+.end-actions button { min-height: 42px; }
+@media (max-width: 650px) {
+  .stage { height: 48vw; min-height: 205px; }
+  .panel { min-height: 0; }
+  .dialog { min-height: 160px; }
+  .hint { font-size: 11px; line-height: 1.6; }
+  .end { gap: 14px; padding: 14px; }
+  .end > div { font-size: 12px; line-height: 1.5; }
+  .end-actions { gap: 8px; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  #app { height: 100dvh; min-height: 0; }
+  .battle-toolbar { min-height: 34px; padding-block: 3px; font-size: 12px; }
+  .battle-toolbar button { padding: 3px 14px; font-size: 12px; }
+  .stage { flex: 1 1 auto; height: auto; min-height: 120px; }
+  .panel { flex: 0 0 auto; min-height: 0; padding: 5px 8px; gap: 8px; }
+  .menu { padding: 5px; }
+  .menuhead { margin-bottom: 4px; font-size: 11px; }
+  .actions { grid-template-columns: 1fr 1fr; gap: 4px; }
+  .actions button { font-size: 12px; padding: 5px 7px; }
+  .dialog { min-height: 100px; gap: 4px; padding: 6px 10px; }
+  .speaker { font-size: 14px; }
+  .line { min-height: 3em; font-size: 12px; line-height: 1.5; }
+  .hint { font-size: 10px; padding: 0 10px 4px; }
+  .status { padding: 5px 8px; }
+  .bar { height: 5px; margin-top: 4px; }
+  .end { padding: 10px; gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx, .shake { animation-duration: .01ms !important; }
+  .fill { transition: none; }
+}

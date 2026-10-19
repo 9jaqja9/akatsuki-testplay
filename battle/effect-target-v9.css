@@ -1,0 +1,32 @@
+/* Keep the uploaded composition intact; fit the demo and controls in its viewer. */
+html { color-scheme: dark; }
+body { min-height: 100dvh; background: #090b12; }
+header { width: 100%; max-width: 1180px; }
+.battle-toolbar { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+h1 { font-family: 'Yu Mincho', 'Noto Serif CJK JP', serif; }
+.stage { width: min(100%, 1180px, calc((100dvh - 160px) * 1672 / 941)); }
+.controls { justify-content: center; margin-block: 10px; }
+.notes { margin-block: 8px; }
+.notes summary { cursor: pointer; color: #e7c887; }
+button { touch-action: manipulation; }
+button:hover { background: #394459; }
+button[aria-pressed="true"] { background: #534123; }
+@media (max-width: 600px) and (orientation: portrait) {
+ header { align-items: flex-start; }
+ header small { display: block; margin-top: 5px; font-size: 11px; }
+ h1 { font-size: 14px; }
+ .battle-toolbar { flex-direction: column-reverse; align-items: flex-end; gap: 6px; }
+ #status { font-size: 11px; }
+ .stage { width: 100%; }
+ .controls { display: grid; grid-template-columns: 1fr 1fr; }
+ .controls button { font-size: 12px; padding: 12px 6px; }
+ .controls #points { grid-column: 1 / -1; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+ header { padding-block: 5px; }
+ header small { display: none; }
+ .stage { width: min(100%, 1180px, calc((100dvh - 112px) * 1672 / 941)); }
+ .controls { margin-block: 6px; gap: 6px; }
+ button { padding: 7px 9px; font-size: 12px; }
+ .notes { font-size: 11px; margin-block: 4px; padding-bottom: 4px; }
+}

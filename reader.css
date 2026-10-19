@@ -1,0 +1,209 @@
+/* Story reader: gold framing and unobstructed artwork, matching the UI reference.
+   Scope overrides to the main reader so title/gallery screens keep their layouts. */
+body { margin: 0; overflow: hidden; }
+body #stage.story-reader {
+  --reader-gold: #e6c66c;
+  --reader-mincho: 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif CJK JP', 'Noto Serif JP', serif;
+  --reader-header: clamp(64px, 11.4vh, 112px);
+  --reader-footer: clamp(64px, 10vh, 96px);
+  --reader-type: clamp(25px, 4.3vw, 72px);
+  width: 100% !important; height: 100dvh !important; min-height: 0 !important;
+  max-height: none !important; font-family: var(--reader-mincho);
+}
+#stage.story-reader::before {
+  z-index: 2; background: linear-gradient(180deg, #03050a26 10%, #03050a40 55%, #03050a66);
+}
+#stage.story-reader .top {
+  inset: 0 0 auto !important; height: var(--reader-header) !important;
+  padding: 0 max(3vw, env(safe-area-inset-right)) 0 max(2vw, env(safe-area-inset-left)) !important;
+  display: grid !important; grid-template-columns: 23% minmax(0, 1fr) 28%;
+  grid-template-rows: minmax(0, 1fr); min-height: 0 !important;
+  gap: 2.5vw !important; align-items: center !important;
+  background: linear-gradient(#03060dd9, #03060d4d) !important;
+  border: 0 !important; border-bottom: 1px solid var(--reader-gold) !important;
+  overflow: visible !important; z-index: 20 !important;
+}
+#stage.story-reader .reader-brand {
+  padding: 0; width: 100%; height: 100%; min-width: 0; min-height: 0; border: 0; border-radius: 0;
+  background: transparent; display: flex; align-items: center;
+}
+#stage.story-reader .reader-brand .game-corner-logo {
+  display: block !important; width: 100% !important; height: 100% !important;
+  max-height: none !important; max-width: 100% !important; object-fit: contain !important;
+  margin: 0 !important; filter: drop-shadow(0 2px 6px #000);
+}
+#stage.story-reader .reader-chapter {
+  display: flex; align-items: center; justify-content: center; gap: 1.7vw;
+  min-width: 0; color: var(--reader-gold);
+}
+#stage.story-reader .reader-flower { font-size: clamp(20px, 2.6vw, 43px); line-height: 1; }
+#stage.story-reader #chapterBadge {
+  display: block !important; position: static !important; min-width: 0;
+  padding: .42em .7em !important; margin: 0 !important; border: 0 !important;
+  border-block: 1px solid var(--reader-gold) !important; border-radius: 0 !important;
+  background: none !important; box-shadow: none !important; color: var(--reader-gold) !important;
+  font: 600 clamp(14px, 1.85vw, 32px)/1.5 var(--reader-mincho) !important;
+  letter-spacing: .14em !important; text-align: center; text-shadow: 0 2px 4px #000;
+  white-space: normal !important; overflow-wrap: anywhere;
+}
+#stage.story-reader #partyHud.party-hud {
+  display: flex !important; position: static !important; width: 100% !important;
+  min-width: 0 !important; max-width: none !important; margin: 0 !important;
+  padding: 0 !important; border: 0 !important; background: none !important;
+}
+#stage.story-reader #partyHud .ally-block.icon-only {
+  width: 100% !important; padding: 0 !important; border: 0 !important;
+  border-radius: 0 !important; background: none !important; box-shadow: none !important;
+}
+#stage.story-reader #partyHud .ally-list {
+  display: flex !important; width: 100% !important; justify-content: space-between !important;
+  gap: 0 !important; padding-inline: 6% !important;
+}
+#stage.story-reader #partyHud .ally-chip {
+  position: relative !important; width: 18% !important; height: auto !important;
+  aspect-ratio: 1; border: 1px solid var(--reader-gold) !important;
+  border-radius: 0 !important; overflow: hidden !important; transform: rotate(45deg);
+  background: #15121a !important; box-shadow: 0 0 0 3px #05070b66;
+}
+#stage.story-reader #partyHud .ally-chip img {
+  position: absolute !important; inset: -22% !important;
+  width: 144% !important; height: 144% !important; max-width: none !important;
+  border: 0 !important; border-radius: 0 !important; transform: rotate(-45deg) scale(1.55);
+  object-fit: cover !important; object-position: center 10% !important;
+}
+body #stage.story-reader #narrative {
+  inset: calc(var(--reader-header) + 8vh) 5.5% calc(var(--reader-footer) + 5vh) !important;
+  width: auto !important; height: auto !important; padding: 0 !important;
+  align-items: center !important; justify-content: flex-start !important;
+  background: none !important; border: 0 !important; border-radius: 0 !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  font: 500 calc(var(--reader-type) * var(--reader-font-scale, 1))/1.55 var(--reader-mincho) !important;
+  letter-spacing: .035em !important; color: #fff !important;
+  text-shadow: 0 2px 3px #000, 0 0 7px #000, 2px 0 3px #000, -2px 0 3px #000 !important;
+  z-index: 9 !important; text-align: left !important;
+}
+body #stage.story-reader #narrativeText {
+  width: 100% !important; max-height: 100% !important;
+  overflow-y: auto !important; overscroll-behavior: contain; scrollbar-width: thin;
+  scrollbar-color: #e6c66c77 transparent; touch-action: pan-y;
+}
+body #stage.story-reader #narrative .line {
+  font: inherit !important; line-height: 1.55 !important;
+  min-height: 0 !important; margin: 0 0 .8em !important;
+}
+body #stage.story-reader #narrative .line:last-child { margin-bottom: 0 !important; }
+body #stage.story-reader #conversation {
+  inset: calc(var(--reader-header) + 9vh) 5.5% calc(var(--reader-footer) + 5vh) !important;
+  width: auto !important; height: auto !important; padding: 0 !important;
+  align-items: center !important; justify-content: flex-start !important;
+  z-index: 9 !important;
+}
+body #stage.story-reader #conversation .bubble-wrap {
+  width: 100% !important; max-width: 100% !important; align-items: flex-start !important; gap: 1em !important;
+}
+body #stage.story-reader #conversation .speaker {
+  position: static !important; padding: 0 !important; margin: 0 !important; transform: none !important;
+  background: none !important; border: 0 !important; border-radius: 0 !important;
+  font: 600 clamp(16px, 2vw, 32px)/1.5 var(--reader-mincho) !important;
+  color: var(--reader-gold) !important; text-shadow: 0 2px 4px #000 !important;
+}
+body #stage.story-reader #conversation .bubble {
+  width: 100% !important; max-width: 100% !important; height: auto !important; min-height: 0 !important;
+  max-height: calc(100dvh - var(--reader-header) - var(--reader-footer) - 22vh) !important;
+  overflow-y: auto !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important;
+  background: none !important; box-shadow: none !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  font: 500 calc(var(--reader-type) * var(--reader-font-scale, 1))/1.55 var(--reader-mincho) !important;
+  color: #fff !important; text-shadow: 0 2px 3px #000, 0 0 7px #000, 2px 0 3px #000, -2px 0 3px #000 !important;
+}
+body #stage.story-reader #conversation .bubble::after { display: none !important; }
+body #stage.story-reader #portrait {
+  z-index: 3 !important; width: 55vw !important; height: 90% !important;
+  bottom: 0 !important; transform: none !important; object-fit: contain !important;
+}
+body #stage.story-reader #portrait.left { left: 0 !important; right: auto !important; object-position: left bottom !important; }
+body #stage.story-reader #portrait.right { right: 0 !important; left: auto !important; object-position: right bottom !important; }
+#stage.story-reader .controls {
+  inset: auto 0 0 !important; height: var(--reader-footer) !important; width: 100% !important;
+  padding: 0 max(5.5vw, env(safe-area-inset-right)) 0 max(5.5vw, env(safe-area-inset-left)) !important;
+  display: flex !important; justify-content: space-between !important; align-items: center !important;
+  gap: 12px !important; border: 0 !important; background: #030409a8 !important;
+  font-family: var(--reader-mincho) !important; color: var(--reader-gold); z-index: 20 !important;
+}
+#stage.story-reader .reader-rule {
+  position: absolute; inset: 0 0 auto; height: 1px; background: var(--reader-gold);
+  display: flex; justify-content: space-between; padding-inline: 3%; pointer-events: none;
+}
+#stage.story-reader .reader-rule span {
+  height: 1em; transform: translateY(-50%); color: var(--reader-gold); font: 32px/1 serif; text-shadow: 0 0 5px #000;
+}
+#stage.story-reader .font-control, #stage.story-reader .reader-navigation {
+  display: flex !important; align-items: center !important; gap: 2vw !important;
+  margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important;
+}
+#stage.story-reader .controls button {
+  display: grid !important; place-items: center; flex: 0 0 auto;
+  width: clamp(42px, 6.5vh, 64px) !important; height: clamp(42px, 6.5vh, 64px) !important;
+  min-height: 0 !important; padding: 0 !important; border: 1px solid var(--reader-gold) !important;
+  border-radius: 50% !important; background: #07080799 !important; color: #f8df8c !important;
+  font: 400 clamp(30px, 5.5vh, 52px)/1 var(--reader-mincho) !important;
+  box-shadow: inset 0 0 0 3px #e6c66c12 !important; backdrop-filter: none !important;
+  touch-action: manipulation;
+}
+#stage.story-reader .controls button:hover { background: #8c6b2555 !important; }
+#stage.story-reader button:focus-visible { outline: 2px solid #fff1b8; outline-offset: 5px; }
+#stage.story-reader .font-control-label, #stage.story-reader .count {
+  font: 600 clamp(13px, 1.6vw, 26px)/1.4 var(--reader-mincho) !important;
+  letter-spacing: .12em; color: var(--reader-gold) !important; white-space: nowrap;
+}
+#stage.story-reader .count { min-width: 5.5em; text-align: center; font-variant-numeric: tabular-nums; }
+.reader-chevron { width: .32em; height: .32em; border-top: .09em solid currentColor; border-right: .09em solid currentColor; transform: translateX(-.07em) rotate(45deg); }
+.reader-chevron-left { transform: translateX(.07em) rotate(-135deg); }
+.reader-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#stage.story-reader #chapterCard { z-index: 12 !important; pointer-events: none; }
+#stage.story-reader #chapterCurtain { pointer-events: none; }
+@media (orientation: portrait) {
+  body #stage.story-reader { --reader-header: 110px; --reader-footer: 76px; --reader-type: clamp(23px, 5.8vw, 42px); }
+  #stage.story-reader .top { grid-template-columns: 38% 1fr; grid-template-rows: 62px 40px; gap: 0 7% !important; padding-inline: 5% !important; }
+  #stage.story-reader .reader-chapter { grid-column: 1 / -1; grid-row: 2; gap: 14px; padding-bottom: 8px; }
+  #stage.story-reader #chapterBadge { font-size: 15px !important; padding-block: 2px !important; }
+  #stage.story-reader #partyHud .ally-chip { width: 16% !important; }
+  #stage.story-reader .reader-flower { font-size: 20px; }
+  #stage.story-reader .controls { padding-inline: 5% !important; }
+  #stage.story-reader .font-control, #stage.story-reader .reader-navigation { gap: 9px !important; }
+  #stage.story-reader .controls button { width: 38px !important; height: 38px !important; font-size: 30px !important; }
+  #stage.story-reader .count { min-width: 4.5em; font-size: 13px !important; }
+  #stage.story-reader .font-control-label { font-size: 12px !important; letter-spacing: 0; }
+  body #stage.story-reader #narrative, body #stage.story-reader #conversation { top: calc(var(--reader-header) + 4vh) !important; }
+  body #stage.story-reader #portrait { width: 95vw !important; height: 76% !important; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  body #stage.story-reader { --reader-header: 56px; --reader-footer: 54px; --reader-type: clamp(23px, 4.8vh, 30px); }
+  #stage.story-reader .controls button { width: 36px !important; height: 36px !important; font-size: 30px !important; }
+  #stage.story-reader .reader-rule span { font-size: 23px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #stage.story-reader .scene-bg { transition: none; }
+}
+
+/* Isolate the imported battle demo from reader styles and keyboard controls. */
+#battleDialog.battle-viewer {
+  position: fixed; inset: 0; width: 100vw; height: 100dvh;
+  max-width: none; max-height: none; margin: 0; padding: 0;
+  border: 0; background: #090b12; color: #eee5d1;
+}
+#battleDialog::backdrop { background: #090b12; }
+#battleFrame { display: block; width: 100%; height: 100%; border: 0; }
+
+#stage.story-reader .controls .reader-battle-link {
+  width: 38px !important; height: 38px !important; font-size: 22px !important;
+  border-color: #e6c66c88 !important;
+}
+@media (orientation: portrait) {
+  #stage.story-reader .controls { gap: 6px !important; }
+  #stage.story-reader .font-control, #stage.story-reader .reader-navigation { gap: 6px !important; }
+  #stage.story-reader .controls .reader-battle-link { width: 30px !important; height: 30px !important; font-size: 18px !important; }
+}
+@media (orientation: portrait) and (max-width: 360px) {
+  #stage.story-reader .font-control-label { font-size: 0 !important; }
+}
