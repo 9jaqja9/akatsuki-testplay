@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>暁ノ刃｜横スクロール戦闘・参考画面</title>
+  <link rel="stylesheet" href="battle-reference.css">
+</head>
+<body>
+  <main class="screen">
+    <header class="masthead"><div class="brand">暁<span>ノ</span>刃<small>A K A T S U K I</small></div><div class="chapter"><small>第一章　伊賀越え</small><h1>山道の襲撃</h1></div><span class="reference-label">配置・演出の参考画面</span></header>
+    <section class="scene" aria-label="横スクロール戦闘の参考画面。狭い画面では左右にスクロールできます" tabindex="0">
+      <div class="world">
+        <div class="moon" aria-hidden="true"></div><div class="mist" aria-hidden="true"></div>
+        <div class="party-label">味方　<span>家康を守る一行</span></div><div class="enemy-label">敵　<span>道を塞ぐ追手</span></div>
+        <div class="ground" aria-hidden="true"></div>
+        <figure class="actor ally ieyasu" data-name="家康"><svg viewBox="0 0 180 320" aria-hidden="true"><use href="#samurai"/></svg><figcaption>家康<small>護衛対象</small></figcaption></figure>
+        <figure class="actor ally ayame" data-name="あやめ"><svg viewBox="0 0 180 320" aria-hidden="true"><use href="#ninja"/></svg><figcaption>あやめ</figcaption></figure>
+        <figure class="actor ally hanzo" data-name="半蔵"><svg viewBox="0 0 180 320" aria-hidden="true"><use href="#ninja"/></svg><figcaption>半蔵<small>前衛</small></figcaption></figure>
+        <figure class="actor foe mob ninja-one" data-name="忍び 一"><svg viewBox="0 0 180 320" aria-hidden="true"><use href="#ninja"/></svg><figcaption>忍び</figcaption></figure>
+        <figure class="actor foe mob ninja-two" data-name="忍び 二"><svg viewBox="0 0 180 320" aria-hidden="true"><use href="#ninja"/></svg><figcaption>忍び</figcaption></figure>
+        <figure class="actor foe mob ninja-three" data-name="忍び 三"><svg viewBox="0 0 180 320" aria-hidden="true"><use href="#ninja"/></svg><figcaption>忍び</figcaption></figure>
+        <figure class="actor foe samanosuke" data-name="左馬之助"><svg viewBox="0 0 180 320" aria-hidden="true"><use href="#samurai"/></svg><figcaption>左馬之助<small>敵の指揮役</small></figcaption></figure>
+        <figure class="actor foe yukihime" data-name="雪姫"><svg viewBox="0 0 180 320" aria-hidden="true"><use href="#princess"/></svg><figcaption>雪姫<small>左馬之助の後方</small></figcaption></figure>
+        <div class="slash" aria-hidden="true"></div><div class="sparks" aria-hidden="true">✦</div>
+        <p class="stage-direction" role="status">忍びが前に出る。左馬之助はその奥、雪姫はさらに後方で戦況を見ている。</p>
+      </div>
+    </section>
+    <section class="bottom-panel" aria-label="会話と演出の操作">
+      <nav class="commands" aria-label="参考画面の操作"><p>物語を進める</p><button id="nextLine" type="button">❯　会話を進める</button><button id="playClash" type="button">斬り合いの演出</button><button id="resetScene" type="button">最初の配置に戻す</button></nav>
+      <div class="dialogue"><img id="face" src="../assets/017_cd2e8e5c5.webp" alt="半蔵の顔"><div class="dialogue-copy" aria-live="polite" aria-atomic="true"><p id="speaker">半蔵</p><p id="line">「殿、俺の後ろへ。<br>……あやめ、前の忍びを押さえるぞ。」</p></div><span id="lineCount">01 / 05</span></div>
+      <aside class="chapter-panel"><p>第一章　伊賀越え</p><div class="ornament">◆ ━━━━━ ◆</div><p class="purpose">刃を交えながら、<br>会話で物語を見せる。</p><div class="utilities"><button id="showLog" type="button">▤ LOG</button><button id="showTemplate" type="button">元の画面</button></div></aside>
+    </section>
+  </main>
+  <p class="note">キャラは配置確認用の仮シルエットです。いただいた戦闘テンプレートの「戦場＋下部の顔・会話・操作欄」を踏襲しています。狭い画面では戦場を左右に動かせます。</p>
+  <dialog id="logDialog"><h2>会話ログ</h2><div id="logEntries"></div><button type="button" data-close>閉じる</button></dialog>
+  <dialog id="templateDialog"><h2>いただいた戦闘テンプレート（v9）</h2><img src="../assets/battle-v9/stage.png" alt="元の戦闘テンプレート。上部に戦場、下部にコマンドと顔アイコン付き会話欄"><button type="button" data-close>閉じる</button></dialog>
+  <svg class="definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop stop-color="var(--light)"/><stop offset=".5" stop-color="var(--cloth)"/><stop offset="1" stop-color="#0b111b"/></linearGradient>
+      <linearGradient id="blade"><stop stop-color="#a9d5e6"/><stop offset=".5" stop-color="#f3faff"/><stop offset="1" stop-color="#5e7788"/></linearGradient>
+      <symbol id="ninja" viewBox="0 0 180 320">
+        <path d="M79 75 21 67 2 89 47 85 62 105 95 98Z" fill="var(--accent)" opacity=".8"/>
+        <path d="m74 188-19 53-10 53-15 15 34 2 14-57 21-40 14 37 10 52 32 5-10-19-6-54-18-50Z" fill="url(#cloth)" stroke="var(--edge)" stroke-width="2"/>
+        <path d="M71 90 49 111 31 152 47 159 77 124 75 164 61 197 128 200 110 157 105 117 136 147 146 135 123 97 99 87Z" fill="url(#cloth)" stroke="var(--edge)" stroke-width="2"/>
+        <path d="M66 158 114 158 119 170 64 172Z" fill="var(--accent)"/><path d="m82 168-4 54 20-16-1-38Z" fill="var(--accent)"/>
+        <path d="M68 57Q65 25 87 24q25 0 24 32l-8 31-27 1Z" fill="url(#cloth)" stroke="var(--edge)" stroke-width="2"/>
+        <path d="m72 51 32 0-3 10-25-1Z" fill="#d5b7a0"/><path d="m77 55 7 1m10-1 7-1" stroke="#131920" stroke-width="3"/>
+        <path d="m142 136 29-39-9 45-18 12-10-8Z" fill="url(#blade)"/><path d="m131 142 21 13" stroke="var(--accent)" stroke-width="5"/>
+        <path d="m44 155 8 6m80-15 8 5" stroke="#ac9485" stroke-width="9"/><path d="m58 245 17 7m43-1 17-5" stroke="var(--edge)" stroke-width="4"/>
+      </symbol>
+      <symbol id="samurai" viewBox="0 0 180 320">
+        <path d="m65 167-9 117-14 23 33 2 17-97 14 93 34 3-15-28-6-113" fill="url(#cloth)" stroke="var(--edge)" stroke-width="2"/>
+        <path d="m61 81-26 24-5 70 16 5 18-67 4 49-17 63 40-12 39 12-16-66 6-46 19 56 16-5-12-63-32-20Z" fill="url(#cloth)" stroke="var(--edge)" stroke-width="2"/>
+        <path d="m60 99 55 0-5 67-42 0Z" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/><path d="M64 114h48m-47 15h46m-44 15h42m-48 42h61m-65 14h73" stroke="var(--edge)" opacity=".8" stroke-width="3"/>
+        <path d="M55 75q-3-40 32-42 34 1 33 43l-17-8-32 1Z" fill="url(#cloth)" stroke="var(--edge)" stroke-width="3"/><path d="m63 50-22-28 11 36m59-10 24-26-11 38" fill="none" stroke="#c6ab72" stroke-width="5"/>
+        <path d="m72 67 31 0-3 23-23-1Z" fill="#bea68e"/><path d="m72 80 28 0-8 13-13-2Z" fill="var(--cloth)"/>
+        <path d="m142 174 30-82-15 88Z" fill="url(#blade)"/><path d="m133 171 27 9" stroke="#c6ab72" stroke-width="5"/><path d="m141 174-5 17" stroke="#6b5542" stroke-width="7"/>
+        <path d="m54 85-20 9-6 29 30-3m56-34 26 9 8 26-29 0" fill="var(--accent)" stroke="var(--edge)" stroke-width="2"/>
+      </symbol>
+      <symbol id="princess" viewBox="0 0 180 320">
+        <path d="M62 51Q63 21 89 20q32 1 31 38l10 138-32-32-41 26Z" fill="#c2c8dc" stroke="#e4e9f4" stroke-width="2"/>
+        <path d="m69 81-31 24-14 83 40 12 8-78-6 85-26 100 101 0-25-101-6-84 14 81 35-16-16-84-34-23Z" fill="url(#cloth)" stroke="var(--edge)" stroke-width="2"/>
+        <path d="m71 84 20 27 16-29-9 73-22 1Z" fill="#ece5e4"/><path d="m68 143 45 0 3 20-50 0Z" fill="var(--accent)"/><path d="m88 170-10 127m14-124 30 128" stroke="var(--edge)" stroke-width="2" opacity=".7"/>
+        <path d="M73 46q13-18 33 0l-4 28-13 9-15-11Z" fill="#d6beb0"/><path d="m72 45 14-14 25 15-11-20-21 4Z" fill="#e1e5f0"/><path d="m78 57 6 0m10 0h6" stroke="#4a4456" stroke-width="2"/>
+        <path d="m124 157 19-23 5 11-16 23" stroke="#d0b9a9" stroke-width="6" fill="none"/>
+      </symbol>
+    </defs>
+  </svg>
+  <script src="battle-reference.js"></script>
+</body>
+</html>
